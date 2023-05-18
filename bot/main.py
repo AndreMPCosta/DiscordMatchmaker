@@ -2,7 +2,7 @@ from json import dump
 from os import mkdir, getenv
 from os.path import exists, normpath
 from typing import Any
-from discord import Client, Intents
+from discord import Client, Intents, utils
 from dotenv import load_dotenv
 from bot.consts import data_folder
 from bot.db_utils import load_json, register_player
@@ -13,6 +13,7 @@ class MatchMaker(Client):
     def __init__(self, *, intents: Intents, **options: Any):
         super().__init__(intents=intents, **options)
         self.playing_list = set()
+        self.playing_list_ids = {}
         self.players = load_json().get('players')
 
     def refresh_players(self):
@@ -33,6 +34,7 @@ class MatchMaker(Client):
                 await message.channel.send('pong')
             case ["!reset"]:
                 self.playing_list = set()
+                self.playing_list_ids = {}
             case ["!playlist"]:
                 output_string = 'Ready to play: \n'
                 for player in enumerate(self.playing_list, start=1):
@@ -54,6 +56,7 @@ class MatchMaker(Client):
                     if not player:
                         await message.channel.send('You are not registered, please register first.')
                     self.playing_list.add(player.get('summoner'))
+                    self.playing_list_ids[player.get('summoner')] = author_id
                     for player in enumerate(self.playing_list, start=1):
                         output_string += '{}. {}\n'.format(*player)
                     await message.channel.send(output_string)
@@ -68,6 +71,12 @@ class MatchMaker(Client):
                     await message.channel.send('Starting the draw! Give me some seconds.')
                     blue_team, red_team, ranks = await balance(self.playing_list)
                     await message.channel.send(beautify_teams(blue_team, red_team, ranks, self.guilds[0].emojis))
+                    blue_team_channel = utils.get(self.guilds[0].channels, name='Team 1')
+                    red_team_channel = utils.get(self.guilds[0].channels, name='Team 2')
+                    for player in blue_team:
+                        await self.guilds[0].get_member(self.playing_list_ids.get(player)).move_to(blue_team_channel)
+                    for player in red_team:
+                        await self.guilds[0].get_member(self.playing_list_ids.get(player)).move_to(red_team_channel)
 
 
 if __name__ == '__main__':
