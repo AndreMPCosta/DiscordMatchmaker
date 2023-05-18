@@ -83,16 +83,16 @@ def beautify_teams(
         emojis=None
 ):
     def helper_formatting(out, player=None, _emojis=None):
-        # try:
-        if emojis:
-            out += "{}. {} {}\n".format(player[0], player[1],
-                                        (utils.get(emojis, name=ranks.get(player[1]).split()[0].
-                                                   capitalize())))
-        else:
-            out += "{}. {} {}\n".format(player[0], player[1],
-                                        (ranks.get(player[1]).split()[0]))
-        # except (Exception,):
-        #     out = {'There was a problem processing ranks.'}
+        try:
+            if emojis:
+                out += "{}. {} {}\n".format(player[0], player[1],
+                                            (utils.get(emojis, name=ranks.get(player[1]).split()[0].
+                                                       capitalize())))
+            else:
+                out += "{}. {} {}\n".format(player[0], player[1],
+                                            (ranks.get(player[1]).split()[0]))
+        except (Exception,):
+            return f"{player[0]}. {player[1]} -> There was a problem processing the rank"
         return out
 
     output_string = 'Game: Closed\n'
