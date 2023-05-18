@@ -1,4 +1,4 @@
-from asyncio import run, set_event_loop_policy, WindowsSelectorEventLoopPolicy
+from asyncio import run
 from html import escape
 from re import search
 from sys import platform
@@ -29,6 +29,8 @@ async def get_rank(summoner: str, build_id: str = None) -> tuple[str, str]:
 
 if __name__ == '__main__':
     if platform == 'win32':
+        from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
+
         set_event_loop_policy(WindowsSelectorEventLoopPolicy())
     rank = run(get_rank('test'))
     print(rank)
