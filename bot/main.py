@@ -65,7 +65,7 @@ class MatchMaker(Client):
                 player = self.players.get(author_id)
                 if player.get('summoner') in self.playing_list:
                     self.playing_list.remove(player.get('summoner'))
-                    self.playing_list_ids.pop(author_id)
+                    self.playing_list_ids.pop(player.get('summoner'))
                     await self.send_ready_list(message)
             case ["!close"]:
                 if len(self.playing_list) < 10:
