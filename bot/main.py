@@ -19,7 +19,7 @@ class MatchMaker(Client):
     async def send_ready_list(self, message):
         output_string = 'Ready to play: \n'
         for player in enumerate(self.playing_list, start=1):
-            output_string += '{}. {}'.format(*player)
+            output_string += '{}. {}\n'.format(*player)
         await message.channel.send(output_string)
 
     def refresh_players(self):
