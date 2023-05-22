@@ -41,7 +41,7 @@ async def draw(mid_point: float, list_ranked_summoners: list[tuple[str, int]]) -
     return blue_team, red_team
 
 
-async def balance(summoners: set[str]) -> tuple[dict[str, int | list], dict[str, int | list], dict[str, str]]:
+async def balance(summoners: list[str]) -> tuple[dict[str, int | list], dict[str, int | list], dict[str, str]]:
     tasks = []
     mid_point = 0
     draws = 0
@@ -59,7 +59,7 @@ async def balance(summoners: set[str]) -> tuple[dict[str, int | list], dict[str,
         tasks.append(get_rank(summoner, build_id))
     results = await gather(*tasks)
     mapped_results = {result[0]: result[1] for result in results}
-    shuffled_summoners = sample(list(summoners), 10)
+    shuffled_summoners = sample(summoners, 10)
     ranked_summoners = {summoner: points.get(mapped_results.get(summoner)) for summoner in shuffled_summoners}
     for summoner, evaluation in ranked_summoners.items():
         mid_point += evaluation

@@ -12,9 +12,15 @@ from bot.helpers import balance, beautify_teams
 class MatchMaker(Client):
     def __init__(self, *, intents: Intents, **options: Any):
         super().__init__(intents=intents, **options)
-        self.playing_list = set()
+        self.playing_list = []
         self.playing_list_ids = {}
         self.players = load_json().get('players')
+
+    def send_ready_list(self, message):
+        output_string = 'Ready to play: \n'
+        for player in enumerate(self.playing_list, start=1):
+            output_string += '{}. {}'.format(*player)
+        await message.channel.send(output_string)
 
     def refresh_players(self):
         self.players = load_json().get('players')
@@ -33,13 +39,10 @@ class MatchMaker(Client):
             case ["!ping"]:
                 await message.channel.send('pong')
             case ["!reset"]:
-                self.playing_list = set()
+                self.playing_list = []
                 self.playing_list_ids = {}
             case ["!playlist"]:
-                output_string = 'Ready to play: \n'
-                for player in enumerate(self.playing_list, start=1):
-                    output_string += '{}. {}\n'.format(*player)
-                await message.channel.send(output_string)
+                self.send_ready_list(message)
             case ["!register", *summoner]:
                 summoner = ' '.join(summoner)
                 register_player(summoner, author_id)
@@ -51,15 +54,19 @@ class MatchMaker(Client):
                 if len(self.playing_list) == 10:
                     await message.channel.send('The lobby is full.')
                 else:
-                    output_string = 'Ready to play: \n'
                     player = self.players.get(author_id)
                     if not player:
                         await message.channel.send('You are not registered, please register first.')
-                    self.playing_list.add(player.get('summoner'))
-                    self.playing_list_ids[player.get('summoner')] = author_id
-                    for player in enumerate(self.playing_list, start=1):
-                        output_string += '{}. {}\n'.format(*player)
-                    await message.channel.send(output_string)
+                    if player.get('summoner') not in self.playing_list:
+                        self.playing_list.append(player.get('summoner'))
+                        self.playing_list_ids[player.get('summoner')] = author_id
+                    self.send_ready_list(message)
+            case ["!remove"]:
+                player = self.players.get(author_id)
+                if player.get('summoner') in self.playing_list:
+                    self.playing_list.remove(player.get('summoner'))
+                    self.playing_list_ids.pop(author_id)
+                    self.send_ready_list(message)
             case ["!close"]:
                 if len(self.playing_list) < 10:
                     await message.channel.send("You don't have enough players to play, you need at least 10")
