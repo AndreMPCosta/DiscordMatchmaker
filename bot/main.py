@@ -16,7 +16,7 @@ class MatchMaker(Client):
         self.playing_list_ids = {}
         self.players = load_json().get('players')
 
-    def send_ready_list(self, message):
+    async def send_ready_list(self, message):
         output_string = 'Ready to play: \n'
         for player in enumerate(self.playing_list, start=1):
             output_string += '{}. {}'.format(*player)
@@ -42,7 +42,7 @@ class MatchMaker(Client):
                 self.playing_list = []
                 self.playing_list_ids = {}
             case ["!playlist"]:
-                self.send_ready_list(message)
+                await self.send_ready_list(message)
             case ["!register", *summoner]:
                 summoner = ' '.join(summoner)
                 register_player(summoner, author_id)
@@ -60,13 +60,13 @@ class MatchMaker(Client):
                     if player.get('summoner') not in self.playing_list:
                         self.playing_list.append(player.get('summoner'))
                         self.playing_list_ids[player.get('summoner')] = author_id
-                    self.send_ready_list(message)
+                    await self.send_ready_list(message)
             case ["!remove"]:
                 player = self.players.get(author_id)
                 if player.get('summoner') in self.playing_list:
                     self.playing_list.remove(player.get('summoner'))
                     self.playing_list_ids.pop(author_id)
-                    self.send_ready_list(message)
+                    await self.send_ready_list(message)
             case ["!close"]:
                 if len(self.playing_list) < 10:
                     await message.channel.send("You don't have enough players to play, you need at least 10")
