@@ -46,10 +46,15 @@ class MatchMaker(Client):
                 await self.send_ready_list(message)
             case ["!register", *summoner]:
                 summoner = ' '.join(summoner)
-                register_player(summoner, author_id)
+                # find the # char
+                if '#' in summoner:
+                    summoner, tag = summoner.split('#')
+                else:
+                    tag = 'euw'
+                register_player(summoner, author_id, tag)
                 self.refresh_players()
                 await message.channel.send(
-                    f"Username '{summoner}' successfully registered, tied to {message.author.name}"
+                    f"Username '{summoner}' and Tag '{tag}' successfully registered, tied to {message.author.name}"
                 )
             case ["!play"]:
                 if len(self.playing_list) == 10:
@@ -59,7 +64,7 @@ class MatchMaker(Client):
                     if not player:
                         await message.channel.send('You are not registered, please register first.')
                     if player.get('summoner') not in self.playing_list:
-                        self.playing_list.append(player.get('summoner'))
+                        self.playing_list.append((player.get('summoner'), player.get('tag')))
                         self.playing_list_ids[player.get('summoner')] = author_id
                     await self.send_ready_list(message)
             case ["!remove"]:

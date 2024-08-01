@@ -8,7 +8,7 @@ from discord import utils
 
 from bot.consts import points, threshold, refresh_interval
 from bot.db_utils import load_json, update_build_id
-from bot.scrapper import get_rank, get_build_id
+from bot.scrapper import get_rank, get_build_id, get_rank_v2
 
 
 async def draw(mid_point: float, list_ranked_summoners: list[tuple[str, int]]) -> \
@@ -41,23 +41,24 @@ async def draw(mid_point: float, list_ranked_summoners: list[tuple[str, int]]) -
     return blue_team, red_team
 
 
-async def balance(summoners: list[str]) -> tuple[dict[str, int | list], dict[str, int | list], dict[str, str]]:
+async def balance(summoners: list[tuple[str, str]]) -> tuple[dict[str, int | list], dict[str, int | list], dict[str, str]]:
     tasks = []
     mid_point = 0
     draws = 0
     json = load_json()
-    if not json.get('last_refresh'):
-        build_id = await get_build_id()
-        update_build_id(build_id)
-    else:
-        if default_timer() - json.get('last_refresh') > refresh_interval:
-            build_id = await get_build_id()
-            update_build_id(build_id)
-        else:
-            build_id = json.get('build_id')
-    for summoner in summoners:
-        tasks.append(get_rank(summoner, build_id))
+    # if not json.get('last_refresh'):
+    #     build_id = await get_build_id()
+    #     update_build_id(build_id)
+    # else:
+    #     if default_timer() - json.get('last_refresh') > refresh_interval:
+    #         build_id = await get_build_id()
+    #         update_build_id(build_id)
+    #     else:
+    #         build_id = json.get('build_id')
+    for summoner, tag in summoners:
+        tasks.append(get_rank_v2(summoner, tag))
     results = await gather(*tasks)
+    summoners = [summoner[0] for summoner in summoners]
     mapped_results = {result[0]: result[1] for result in results}
     shuffled_summoners = sample(summoners, 10)
     ranked_summoners = {summoner: points.get(mapped_results.get(summoner)) for summoner in shuffled_summoners}
