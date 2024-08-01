@@ -99,12 +99,12 @@ class MatchMaker(Client):
                     await message.channel.send(beautify_teams(blue_team, red_team, ranks, self.guilds[0].emojis))
                     blue_team_channel = utils.get(self.guilds[0].channels, name='Team 1')
                     red_team_channel = utils.get(self.guilds[0].channels, name='Team 2')
-                    # for player in blue_team.get('players'):
-                    #     await self.guilds[0].get_member(int(self.playing_list_ids.get(player))).move_to(
-                    #         blue_team_channel)
-                    # for player in red_team.get('players'):
-                    #     await self.guilds[0].get_member(int(self.playing_list_ids.get(player))).move_to(
-                    #         red_team_channel)
+                    for player in blue_team.get('players'):
+                        await self.guilds[0].get_member(int(self.playing_list_ids.get(player))).move_to(
+                            blue_team_channel)
+                    for player in red_team.get('players'):
+                        await self.guilds[0].get_member(int(self.playing_list_ids.get(player))).move_to(
+                            red_team_channel)
 
 
 if __name__ == '__main__':
