@@ -13,6 +13,18 @@ class MatchMaker(Client):
     def __init__(self, *, intents: Intents, **options: Any):
         super().__init__(intents=intents, **options)
         self.playing_list = []
+        # [
+        #     ("NinaKravitzzz", "EUW"),
+        #     ("Sir Silv Slayer", "SIR"),
+        #     ("CFortes", "EUW"),
+        #     ("sinj", "sinji"),
+        #     ("flemsss", "EUW"),
+        #     ("salganhadaa", "simor"),
+        #     ("zau", "EUW"),
+        #     ("Elesh95", "EUW"),
+        #     ("madafz", "EUW"),
+        #     ("Princess RS", "EUW")
+        # ]
         self.playing_list_ids = {}
         self.players = load_json().get('players')
 
@@ -87,12 +99,12 @@ class MatchMaker(Client):
                     await message.channel.send(beautify_teams(blue_team, red_team, ranks, self.guilds[0].emojis))
                     blue_team_channel = utils.get(self.guilds[0].channels, name='Team 1')
                     red_team_channel = utils.get(self.guilds[0].channels, name='Team 2')
-                    for player in blue_team.get('players'):
-                        await self.guilds[0].get_member(int(self.playing_list_ids.get(player))).move_to(
-                            blue_team_channel)
-                    for player in red_team.get('players'):
-                        await self.guilds[0].get_member(int(self.playing_list_ids.get(player))).move_to(
-                            red_team_channel)
+                    # for player in blue_team.get('players'):
+                    #     await self.guilds[0].get_member(int(self.playing_list_ids.get(player))).move_to(
+                    #         blue_team_channel)
+                    # for player in red_team.get('players'):
+                    #     await self.guilds[0].get_member(int(self.playing_list_ids.get(player))).move_to(
+                    #         red_team_channel)
 
 
 if __name__ == '__main__':

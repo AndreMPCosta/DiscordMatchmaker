@@ -45,7 +45,7 @@ async def balance(summoners: list[tuple[str, str]]) -> tuple[dict[str, int | lis
     tasks = []
     mid_point = 0
     draws = 0
-    json = load_json()
+    # json = load_json()
     # if not json.get('last_refresh'):
     #     build_id = await get_build_id()
     #     update_build_id(build_id)
