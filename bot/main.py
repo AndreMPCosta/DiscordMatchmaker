@@ -14,15 +14,15 @@ class MatchMaker(Client):
         super().__init__(intents=intents, **options)
         self.playing_list = []
         # [
+        #     ("Demon Hand", "Water"),
         #     ("NinaKravitzzz", "EUW"),
-        #     ("Sir Silv Slayer", "SIR"),
-        #     ("CFortes", "EUW"),
+        #     ("Mazzeee", "EUW"),
         #     ("sinj", "sinji"),
         #     ("flemsss", "EUW"),
         #     ("salganhadaa", "simor"),
-        #     ("zau", "EUW"),
-        #     ("Elesh95", "EUW"),
-        #     ("madafz", "EUW"),
+        #     ("Filipados", "EUW"),
+        #     ("Godzela", "EUW"),
+        #     ("CrazedAfro", "EUW"),
         #     ("Princess RS", "EUW")
         # ]
         self.playing_list_ids = {}
@@ -32,7 +32,7 @@ class MatchMaker(Client):
         output_string = 'Ready to play: \n'
         for index, player in enumerate(self.playing_list, start=1):
             output_string += '{}. {}\n'.format(index, player[0]) \
-                if player[0] != len(self.playing_list) else '{}. {}'.format(index, player[0])
+                if player[0] != len(self.playing_list) - 1 else '{}. {}'.format(index, player[0])
         await message.channel.send(output_string)
 
     def refresh_players(self):
