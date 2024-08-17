@@ -20,8 +20,6 @@ services:
   bot:
     build: ./
     command: pipenv run python -m bot.main
-    env_file:
-      - stack.env
 volumes:
   mongo_data:
     driver: local
