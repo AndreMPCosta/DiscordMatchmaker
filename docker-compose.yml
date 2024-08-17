@@ -17,15 +17,34 @@ services:
       - 'mongo_config:/data/configdb'
     networks:
       - default
-  bot:
-    build: ./
-    command: pipenv run python -m bot.main
+  discord: &common
+    image: andrempcosta/bot-repo:latest
+    container_name: discord-worker
+    command: pipenv run bot
+    env_file:
+      - stack.env
+    volumes:
+      - "bot_data:/DiscordMatchmaker/data:rw"
+    networks:
+      - default
+  webapp:
+    <<: *common
+    env_file:
+      - stack.env
+    container_name: webapp
+    command: pipenv run webapp
+    ports:
+      - "16000:16000"
+    networks:
+      - default
 volumes:
   mongo_data:
     driver: local
   mongo_config:
     driver: local
+  bot_data:
+    driver: local
 networks:
   default:
-    name: bot-network
+    name: default-network
     external: true

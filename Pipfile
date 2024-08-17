@@ -7,6 +7,10 @@ name = "pypi"
 "discord.py" = "*"
 aiohttp = "*"
 python-dotenv = "*"
+fastapi = {extras = ["standard"], version = "*"}
+beanie = "*"
+motor = {extras = ["encryption"], version = "*"}
+orjson = "*"
 
 [dev-packages]
 ruff = "*"
@@ -16,6 +20,9 @@ pre-commit = "*"
 python_version = "3.10"
 
 [scripts]
-start = "python -m bot.main"
+bot = "python -m bot.main"
 lint = "ruff check ."
 format = "ruff format ."
+webapp = "python -m api.app"
+build = "docker build -t andrempcosta/bot-repo:latest ."
+push = "docker push andrempcosta/bot-repo:latest"

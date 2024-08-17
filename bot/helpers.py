@@ -89,9 +89,9 @@ def beautify_teams(
     for p in x_blue_team:
         output_string = helper_formatting(output_string, player=p, _emojis=emojis)
 
-    output_string += ("```ansi\n"
-                      "\x1B[2;31m[Red Team with Score: {0:.2f}]\x1B[0m\x1B[2;31m\x1B[0m\n"
-                      "```".format(red_team["score"]))
+    output_string += "```ansi\n" "\x1b[2;31m[Red Team with Score: {0:.2f}]\x1b[0m\x1b[2;31m\x1b[0m\n" "```".format(
+        red_team["score"]
+    )
 
     for p in x_red_team:
         output_string = helper_formatting(output_string, player=p, _emojis=emojis)
