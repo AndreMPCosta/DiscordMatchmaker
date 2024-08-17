@@ -12,9 +12,7 @@ from uvicorn import run as uvicorn_run
 
 from api.db import get_db
 from api.routers import api_router
-from api.settings import get_secrets
-
-secrets = get_secrets()
+from utils import get_project_root
 
 
 @asynccontextmanager
@@ -106,6 +104,6 @@ if __name__ == "__main__":
         port=int(environ.get("PORT", 16000)),
         log_level="info",
         workers=int(environ.get("WORKERS", 1)),
-        ssl_certfile=secrets.cert_file_path if not environ.get("IS_LOCAL", False) else None,
-        ssl_keyfile=secrets.key_file_path if not environ.get("IS_LOCAL", False) else None,
+        ssl_certfile=f"{get_project_root()}/data/cert.pem" if not environ.get("IS_LOCAL", False) else None,
+        ssl_keyfile=f"{get_project_root()}/data/key.pem" if not environ.get("IS_LOCAL", False) else None,
     )
