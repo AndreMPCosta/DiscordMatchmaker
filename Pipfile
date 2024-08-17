@@ -9,9 +9,13 @@ aiohttp = "*"
 python-dotenv = "*"
 
 [dev-packages]
+ruff = "*"
+pre-commit = "*"
 
 [requires]
 python_version = "3.10"
 
 [scripts]
 start = "python -m bot.main"
+lint = "ruff check ."
+format = "ruff format ."
