@@ -104,6 +104,6 @@ if __name__ == "__main__":
         port=int(environ.get("PORT", 16000)),
         log_level="info",
         workers=int(environ.get("WORKERS", 1)),
-        ssl_certfile=f"{get_project_root()}/data/cert.pem" if not environ.get("IS_LOCAL", False) else None,
-        ssl_keyfile=f"{get_project_root()}/data/key.pem" if not environ.get("IS_LOCAL", False) else None,
+        ssl_certfile=f"{get_project_root()}/data/certs/cert.pem" if not environ.get("IS_LOCAL", False) else None,
+        ssl_keyfile=f"{get_project_root()}/data/certs/key.pem" if not environ.get("IS_LOCAL", False) else None,
     )
