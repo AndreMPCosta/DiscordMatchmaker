@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  mongo:
+    env_file:
+      - stack.env
+    container_name: mongo
+    image: mongo:latest
+    restart: always
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_USER
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_PASSWORD
+    volumes:
+      - 'mongo_data:/data/db'
+      - 'mongo_config:/data/configdb'
+    networks:
+      - default
+volumes:
+  mongo_data:
+    driver: local
+  mongo_config:
+    driver: local
+networks:
+  default:
+    name: bot-network
+    external: true
