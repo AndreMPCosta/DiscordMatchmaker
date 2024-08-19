@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 from logging import getLogger
 from os import environ, getenv
-from os.path import exists
 
 from beanie import init_beanie
 from fastapi import FastAPI
@@ -99,8 +98,6 @@ async def general_exception_handler(request: Request, exc: Exception):
 app.include_router(api_router)
 
 if __name__ == "__main__":
-    print(f"{get_project_root()}/data/certs/cert.pem")
-    print(exists(f"{get_project_root()}/data/certs"))
     uvicorn_run(
         "api.app:app",
         host="0.0.0.0",
