@@ -9,7 +9,7 @@ from api.models.user import User
 from bot.commands import ClientSingleton
 from bot.commands.account import Register
 from bot.commands.generic import Help
-from bot.commands.match import Close, Play, Remove, Reset
+from bot.commands.match import Close, Play, Remove, Reset, Upload
 from bot.db_utils import load_json
 
 
@@ -20,6 +20,7 @@ class Commands:
     play: Play = Play()
     remove: Remove = Remove()
     close: Close = Close()
+    upload: Upload = Upload()
     help: Help = Help()
 
 
