@@ -26,18 +26,19 @@ class Commands:
 class MatchMaker(Client):
     def __init__(self, *, intents: Intents, **options: Any):
         super().__init__(intents=intents, **options)
-        self.playing_list = [
-            ("Demon Hand", "Water"),
-            ("NinaKravitzzz", "EUW"),
-            ("Mazzeee", "EUW"),
-            ("sinj", "sinji"),
-            ("flemsss", "EUW"),
-            ("salganhadaa", "simor"),
-            ("Filipados", "EUW"),
-            ("Godzela", "EUW"),
-            ("CrazedAfro", "EUW"),
-            ("2n2u", "EUW"),
-        ]
+        self.playing_list = []
+        # [
+        #     ("Demon Hand", "Water"),
+        #     ("NinaKravitzzz", "EUW"),
+        #     ("Mazzeee", "EUW"),
+        #     ("sinj", "sinji"),
+        #     ("flemsss", "EUW"),
+        #     ("salganhadaa", "simor"),
+        #     ("Filipados", "EUW"),
+        #     ("Godzela", "EUW"),
+        #     ("CrazedAfro", "EUW"),
+        #     ("2n2u", "EUW"),
+        # ]
         self.playing_list_ids = {}
         self.players = load_json().get("players")
         self.commands = Commands()
