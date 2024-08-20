@@ -6,6 +6,8 @@ from sys import platform
 
 from aiohttp import ClientSession
 
+from bot.exceptions import SummonerNotFound
+
 division_mapping = {"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5}
 
 
@@ -61,6 +63,8 @@ async def get_rank_v2(summoner: str, tag: str = "euw") -> tuple[str, str]:
             ),
         ) as resp:
             response = await resp.json()
+            if response.get("errors"):
+                raise SummonerNotFound(summoner, tag)
             tier = response.get("data").get("fetchProfileRanks").get("rankScores")[0].get("tier")
             division = division_mapping.get(
                 response.get("data").get("fetchProfileRanks").get("rankScores")[0].get("rank")

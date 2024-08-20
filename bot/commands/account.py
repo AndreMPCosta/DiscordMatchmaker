@@ -6,6 +6,8 @@ from discord import Message
 
 from api.models.user import User
 from bot.commands import Command
+from bot.exceptions import SummonerNotFound
+from bot.scrapper import get_rank_v2
 
 logger = getLogger(__name__)
 
@@ -27,6 +29,11 @@ class Register(Command):
             summoner, tag = summoner.split("#")
         else:
             tag = "EUW"
+        try:
+            await get_rank_v2(summoner, tag)
+        except SummonerNotFound as e:
+            await message.channel.send(e.detail)
+            return
         if not user:
             user = User(discord_id=author_id, summoner=summoner, tag=tag)
         else:
