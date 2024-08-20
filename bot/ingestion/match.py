@@ -8,16 +8,6 @@ import numpy as np
 
 from bot import get_project_root
 
-# champion_images = {}
-#
-# for _image in listdir(f'{get_project_root()}/bot/ingestion/champions'):
-#     champion_images[_image.split('.')[0]] = cv2.imread(f'{get_project_root()}/bot/ingestion/champions/{_image}')
-#
-# adjustments = {
-#     1: (-1, 1, 0, -2),
-#     9: (-1, 2, 2, -1),
-# }
-
 
 @dataclass
 class ImageRecognition:
