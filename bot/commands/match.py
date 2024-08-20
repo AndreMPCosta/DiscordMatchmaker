@@ -1,10 +1,14 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from aiohttp import ClientSession
+import cv2
 from discord import utils
+import numpy as np
 
 from api.models.user import User
 from bot.commands import Command
 from bot.helpers import balance, beautify_teams
+from bot.ingestion.match import ImageRecognition
 
 
 @dataclass
@@ -90,3 +94,27 @@ class Close(Command):
                     .get_member(int(self.client.playing_list_ids.get(player)))
                     .move_to(red_team_channel)
                 )
+
+
+@dataclass
+class Upload(Command):
+    name: str = "upload"
+    description: str = "Upload a screenshot to create a match"
+    usage: str = "!upload"
+    example: str = "!upload"
+    image_recognition: ImageRecognition = field(default_factory=ImageRecognition)
+
+    async def execute(self, message, *args):
+        async with ClientSession() as session:
+            async with session.get(message.attachments[0].url) as response:
+                # Read the image as bytes
+                image_bytes = await response.read()
+
+                # Convert the bytes to a numpy array
+                image_array = np.frombuffer(image_bytes, np.uint8)
+
+                # Decode the image using OpenCV
+                image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+                self.image_recognition.set_screenshot(image)
+                champions = self.image_recognition.get_champions()
+                await message.channel.send(f"Match created with champions: {', '.join(champions)}")

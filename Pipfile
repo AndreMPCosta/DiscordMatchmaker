@@ -7,10 +7,12 @@ name = "pypi"
 "discord.py" = "*"
 aiohttp = "*"
 python-dotenv = "*"
-fastapi = {extras = ["standard"], version = "*"}
+fastapi = { extras = ["standard"], version = "*" }
 beanie = "*"
-motor = {extras = ["encryption"], version = "*"}
+motor = { extras = ["encryption"], version = "*" }
 orjson = "*"
+opencv-python = "*"
+numpy = "*"
 
 [dev-packages]
 ruff = "*"
