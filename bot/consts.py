@@ -3,12 +3,12 @@ from os.path import normpath
 from bot import get_project_root
 
 points = {
-    "Challenger": 220,
-    "CHALLENGER": 220,
-    "Grandmaster": 200,
-    "GRANDMASTER": 200,
-    "Master": 180,
-    "MASTER": 180,
+    "Challenger 1": 220,
+    "CHALLENGER I": 220,
+    "Grandmaster 1": 200,
+    "GRANDMASTER I": 200,
+    "Master 1": 180,
+    "MASTER I": 180,
     "DIAMOND I": 170,
     "DIAMOND II": 165,
     "DIAMOND III": 160,
