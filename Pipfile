@@ -28,6 +28,7 @@ python_version = "3.10"
 [scripts]
 bot = "python -m bot.main"
 lint = "ruff check ."
+test = "pytest -ra --disable-warnings --asyncio-mode auto"
 format = "ruff format ."
 webapp = "python -m api.app"
 build = "docker build -t andrempcosta/bot-repo:latest ."

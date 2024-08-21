@@ -52,6 +52,7 @@ jobs:
           pipenv run test -v
 
   build-and-push:
+    needs: lint-and-test
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository code
