@@ -1,4 +1,4 @@
-from numpy import array
+from numpy import array, ndarray
 from PIL import Image, ImageEnhance
 from rapidocr_onnxruntime import RapidOCR
 
@@ -7,7 +7,7 @@ from bot import get_project_root
 engine = RapidOCR()
 
 
-def preprocess_image(image_path: str):
+def preprocess_image(image_path: str) -> ndarray:
     img = Image.open(image_path)
 
     # Convert to grayscale
