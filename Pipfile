@@ -13,8 +13,7 @@ motor = { extras = ["encryption"], version = "*" }
 orjson = "*"
 numpy = "*"
 # OpenCV installation based on the OS
-opencv-python = { version = "*", markers = "sys_platform == 'win32'" }
-opencv-python-headless = { version = "*", markers = "sys_platform != 'win32'" }
+opencv-python = "*"
 
 [dev-packages]
 ruff = "*"

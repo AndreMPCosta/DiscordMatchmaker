@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2e575dc250767e02bcb58bc309da87e6614e73314c603b4e0fbdb5d59e750bd7"
+            "sha256": "8122e8f1013eb15f0643803e0bb44e6cb230cef56618e6722fb03029d5935008"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -879,11 +879,9 @@
                 "sha256:9ace140fc6d647fbe1c692bcb2abce768973491222c067c131d80957c595b71f",
                 "sha256:fc182f8f4cda51b45f01c64e4cbedfc2f00aff799debebc305d8d0210c43f251"
             ],
-            "markers": "sys_platform == 'win32'",
+            "index": "pypi",
+            "markers": "python_version >= '3.6'",
             "version": "==4.10.0.84"
-        },
-        "opencv-python-headless": {
-            "markers": "sys_platform != 'win32'"
         },
         "orjson": {
             "hashes": [
@@ -1303,7 +1301,7 @@
                 "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d",
                 "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "python_version < '3.11'",
             "version": "==4.12.2"
         },
         "urllib3": {

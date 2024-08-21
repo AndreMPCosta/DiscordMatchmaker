@@ -7,7 +7,9 @@ RUN pip install --upgrade pip
 RUN pip install pipenv
 
 RUN apt-get update
-RUN apt-get -y install nano
+RUN apt-get -y install --no-install-recommends \
+    nano \
+    libegl1
 
 RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
