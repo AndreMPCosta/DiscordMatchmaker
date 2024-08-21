@@ -20,6 +20,7 @@ class ImageRecognition:
     champion_images: dict[str, np.ndarray] = field(default_factory=dict)
     adjustments: dict[int, tuple[int, int, int, int]] = field(default_factory=dict)
     screenshot: Mat | np.ndarray[Any, np.dtype] = None
+    debug: bool = False
 
     def __post_init__(self):
         for _image in listdir(f"{get_project_root()}/bot/ingestion/champions2"):
@@ -145,9 +146,10 @@ class ImageRecognition:
             final_rois.append((x, y, w, h))
 
         # Show the detected ROIs in the cropped left side
-        # cv2.imshow("Detected ROIs on Left Side", left_side)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        if self.debug:
+            cv2.imshow("Detected ROIs on Left Side", left_side)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
         final_rois.reverse()
         return final_rois
 
