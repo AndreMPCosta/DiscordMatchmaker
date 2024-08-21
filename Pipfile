@@ -11,8 +11,10 @@ fastapi = { extras = ["standard"], version = "*" }
 beanie = "*"
 motor = { extras = ["encryption"], version = "*" }
 orjson = "*"
-opencv-python = "*"
 numpy = "*"
+# OpenCV installation based on the OS
+opencv-python = { version = "*", markers = "sys_platform == 'win32'" }
+opencv-python-headless = { version = "*", markers = "sys_platform != 'win32'" }
 
 [dev-packages]
 ruff = "*"
