@@ -82,7 +82,8 @@ class MatchMaker(Client):
             case ["!register", *summoner]:
                 await getattr(self.commands, "register").execute(message, summoner)
             case _:  # default
-                await getattr(self.commands, content.split()[0].replace("!", "")).execute(message)
+                if "!" in content:
+                    await getattr(self.commands, content.split()[0].replace("!", "")).execute(message)
 
 
 _intents = Intents.default()
