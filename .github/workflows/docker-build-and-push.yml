@@ -7,9 +7,52 @@ on:
       - main
 
 jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install libgl1-mesa-glx and libglib2.0-0
+        run: sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
+
+      # Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10.11"
+
+      # Install pipenv
+      - name: Install pipenv
+        run: |
+          python -m pip install --upgrade pipenv
+
+      # Cache pipenv
+      - id: cache-pipenv
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+
+      # Install dependencies
+      - name: Install dependencies
+        if: steps.cache-pipenv.outputs.cache-hit != 'true'
+        run: |
+          pipenv install --dev
+
+      # Run linter
+      - name: Run linter
+        run: |
+          pipenv run lint
+
+      # Run tests
+      - name: Run tests
+        run: |
+          pipenv run test -v
+
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       # Checkout the repository code
       - name: Checkout code

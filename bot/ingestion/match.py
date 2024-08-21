@@ -8,6 +8,12 @@ import numpy as np
 
 from bot import get_project_root
 
+generic_adjustments = {
+    1: [(-1, 1, 0, -2)],
+    5: [(0, 1, 0, -1)],
+    9: [(0, 1, 1, 0)],
+}
+
 
 @dataclass
 class ImageRecognition:
@@ -16,13 +22,13 @@ class ImageRecognition:
     screenshot: Mat | np.ndarray[Any, np.dtype] = None
 
     def __post_init__(self):
-        for _image in listdir(f"{get_project_root()}/bot/ingestion/champions"):
+        for _image in listdir(f"{get_project_root()}/bot/ingestion/champions2"):
             self.champion_images[_image.split(".")[0]] = cv2.imread(
-                f"{get_project_root()}/bot/ingestion/champions/{_image}"
+                f"{get_project_root()}/bot/ingestion/champions2/{_image}"
             )
         self.adjustments = {
-            1: (-1, 1, 0, -2),
-            9: (-1, 2, 2, -1),
+            1: (-2, 2, 2, 0),  # (-1, 1, 0, -2)
+            9: (-1, 2, 2, -1),  # (-1, 2, 2, -1)
         }
 
     def set_screenshot(self, screenshot: Mat | np.ndarray[Any, np.dtype]) -> None:
@@ -54,17 +60,30 @@ class ImageRecognition:
         # Iterate over each ROI to identify champions
         identified_champions = []
 
-        for roi in rois:
+        for index, roi in enumerate(rois):
             x, y, w, h = roi
             roi_image = self.screenshot[y : y + h, x : x + w]
             champion = self.match_champion(roi_image, self.champion_images)
+            if champion == "MonkeyKing":
+                champion = "Wukong"
+            while champion is None:
+                all_adjustments = range(len(generic_adjustments.get(index)))
+                for current_adjustment in all_adjustments:
+                    x = x + generic_adjustments.get(index)[current_adjustment][0]
+                    w = w + generic_adjustments.get(index)[current_adjustment][1]
+                    h = h + generic_adjustments.get(index)[current_adjustment][2]
+                    y = y + generic_adjustments.get(index)[current_adjustment][3]
+                    roi_image = self.screenshot[y : y + h, x : x + w]
+                    champion = self.match_champion(roi_image, self.champion_images)
+                    if champion:
+                        break
             identified_champions.append(champion)
         return identified_champions
 
     def calculate_rois(self, indexes: list[int] | None = None) -> list[tuple[int, int, int, int]]:
         # Define the region on the left side where the portraits are located
         height, width = self.screenshot.shape[:2]
-        left_side = self.screenshot[0:height, 0 : int(width * 0.3)]  # Adjust the width percentage as needed
+        left_side = self.screenshot[0:height, 0 : int(width * 0.2)]  # Adjust the width percentage as needed
 
         # Convert the cropped left side of the image from BGR to HSV color space
         hsv_image = cv2.cvtColor(left_side, cv2.COLOR_BGR2HSV)
@@ -139,5 +158,5 @@ class ImageRecognition:
 
 if __name__ == "__main__":
     img_recognition = ImageRecognition()
-    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/bot/ingestion/test3.png"))
+    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test6.png"))
     print(img_recognition.get_champions())
