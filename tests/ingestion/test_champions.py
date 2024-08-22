@@ -19,9 +19,11 @@ correct_guesses = [
     ["Kayle", "JarvanIV", "MissFortune", "Blitzcrank", "Yone", "Ekko", "Yorick", "Ashe", "Brand", "Senna"],
 ]
 
+debug = False
+
 
 def test_guess_champions_1():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test1.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -29,7 +31,7 @@ def test_guess_champions_1():
 
 
 def test_guess_champions_2():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test2.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -37,7 +39,7 @@ def test_guess_champions_2():
 
 
 def test_guess_champions_3():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test3.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -45,7 +47,7 @@ def test_guess_champions_3():
 
 
 def test_guess_champions_4():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test4_bigger.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -53,7 +55,7 @@ def test_guess_champions_4():
 
 
 def test_guess_champions_5():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test5.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -61,7 +63,7 @@ def test_guess_champions_5():
 
 
 def test_guess_champions_6():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test6.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -69,7 +71,7 @@ def test_guess_champions_6():
 
 
 def test_guess_champions_7():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test7.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -77,7 +79,7 @@ def test_guess_champions_7():
 
 
 def test_guess_champions_8():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test8.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -85,7 +87,7 @@ def test_guess_champions_8():
 
 
 def test_guess_champions_9():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test9.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -93,7 +95,7 @@ def test_guess_champions_9():
 
 
 def test_guess_champions_10():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test10.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -101,7 +103,7 @@ def test_guess_champions_10():
 
 
 def test_guess_champions_11():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test11.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -109,7 +111,7 @@ def test_guess_champions_11():
 
 
 def test_guess_champions_12():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test12.png"))
     champions = img_recognition.get_champions()
     print(champions)
@@ -117,7 +119,7 @@ def test_guess_champions_12():
 
 
 def test_guess_champions_13():
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=debug)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test13.png"))
     champions = img_recognition.get_champions()
     print(champions)
