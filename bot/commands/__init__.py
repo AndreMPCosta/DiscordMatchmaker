@@ -42,5 +42,5 @@ class Command(ABC):
         await message.channel.send(_message)
 
     async def update_redis(self):
-        self.client.redis.set("playing_list", dumps(self.client.playing_list))
-        self.client.redis.set("playing_list_ids", dumps(self.client.playing_list_ids))
+        await self.client.redis.set("playing_list", dumps(self.client.playing_list))
+        await self.client.redis.set("playing_list_ids", dumps(self.client.playing_list_ids))
