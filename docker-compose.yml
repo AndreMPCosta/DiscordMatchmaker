@@ -17,6 +17,17 @@ services:
       - 'mongo_config:/data/configdb'
     networks:
       - default
+  redis:
+    env_file:
+      - stack.env
+    container_name: redis
+    image: redis/redis-stack:latest
+    restart: always
+    ports:
+      - '6379:6379'
+      - '8001:8001'
+    environment:
+      REDIS_ARGS: --requirepass $REDIS_PASSWORD
   discord: &common
     image: andrempcosta/bot-repo:latest
     container_name: discord-worker
@@ -24,7 +35,7 @@ services:
     env_file:
       - stack.env
     volumes:
-      - "bot_data:/DiscordMatchmaker/data:rw"
+      - "bot_data:/home/DiscordMatchmaker/data:rw"
     networks:
       - default
   webapp:

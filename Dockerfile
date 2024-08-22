@@ -20,5 +20,6 @@ COPY ./Pipfile $APP_HOME/Pipfile
 
 COPY api $APP_HOME/api
 COPY bot $APP_HOME/bot
+COPY clients $APP_HOME/clients
 
 RUN pipenv install
