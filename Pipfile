@@ -17,6 +17,7 @@ opencv-python = "*"
 rapidocr-onnxruntime = "*"
 pillow = "*"
 aioredis = "*"
+dateparser = "*"
 
 [dev-packages]
 ruff = "*"

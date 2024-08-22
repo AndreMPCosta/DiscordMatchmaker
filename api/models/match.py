@@ -47,5 +47,5 @@ class Match(Document):
     blue_team: Team
     red_team: Team
     duration: str
-    at: datetime
+    date: datetime
     winner: Literal["blue", "red"]
