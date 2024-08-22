@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from json import loads
 from typing import Any
 
+from aioredis import Redis
 from beanie import init_beanie
 from discord import Client, Intents, Message
 
@@ -11,6 +13,7 @@ from bot.commands.account import Register
 from bot.commands.generic import Help
 from bot.commands.match import Close, Play, Remove, Reset, Upload
 from bot.db_utils import load_json
+from clients.redis import retrieve_async_redis_client
 
 
 @dataclass
@@ -27,6 +30,7 @@ class Commands:
 class MatchMaker(Client):
     def __init__(self, *, intents: Intents, **options: Any):
         super().__init__(intents=intents, **options)
+        self.redis: Redis = retrieve_async_redis_client()
         self.playing_list = []
         # [
         #     ("Demon Hand", "Water"),
@@ -48,6 +52,12 @@ class MatchMaker(Client):
         print(f"Logged on as {self.user}!")
         ClientSingleton.set_client(self)  # Set the client globally
         await init_beanie(database=get_db(), document_models=[User])
+        from_redis_playing_list = await self.redis.get("playing_list")
+        from_redis_playing_list_ids = await self.redis.get("playing_list_ids")
+        self.playing_list = (
+            [(player, tag) for player, tag in loads(from_redis_playing_list)] if from_redis_playing_list else []
+        )
+        self.playing_list_ids = loads(from_redis_playing_list_ids) if from_redis_playing_list_ids else {}
 
     async def send_ready_list(self, message: Message):
         output_string = "Ready to play: \n"

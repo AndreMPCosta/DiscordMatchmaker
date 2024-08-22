@@ -159,6 +159,6 @@ class ImageRecognition:
 
 
 if __name__ == "__main__":
-    img_recognition = ImageRecognition()
+    img_recognition = ImageRecognition(debug=True)
     img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test6.png"))
     print(img_recognition.get_champions())
