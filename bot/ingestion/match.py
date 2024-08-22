@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from os import listdir
-from typing import Any
+from typing import Any, Literal
 
 import cv2
 from cv2 import Mat
@@ -17,16 +17,27 @@ generic_adjustments = {
 
 @dataclass
 class ImageRecognition:
+    original_champions_images: dict[str, np.ndarray] = field(default_factory=dict)
     champion_images: dict[str, np.ndarray] = field(default_factory=dict)
+    ban_images: dict[str, np.ndarray] = field(default_factory=dict)
     adjustments: dict[int, tuple[int, int, int, int]] = field(default_factory=dict)
     screenshot: Mat | np.ndarray[Any, np.dtype] = None
     debug: bool = False
 
     def __post_init__(self):
+        for _image in listdir(f"{get_project_root()}/bot/ingestion/champions"):
+            self.original_champions_images[_image.split(".")[0]] = cv2.imread(
+                f"{get_project_root()}/bot/ingestion/champions/{_image}"
+            )
+
         for _image in listdir(f"{get_project_root()}/bot/ingestion/champions2"):
             self.champion_images[_image.split(".")[0]] = cv2.imread(
                 f"{get_project_root()}/bot/ingestion/champions2/{_image}"
             )
+
+        # Load ban icons (similar to how champion images were loaded)
+        for _image in listdir(f"{get_project_root()}/bot/ingestion/champions"):
+            self.ban_images[_image.split(".")[0]] = cv2.imread(f"{get_project_root()}/bot/ingestion/champions/{_image}")
         self.adjustments = {
             1: (-2, 2, 2, 0),  # (-1, 1, 0, -2)
             9: (-1, 2, 2, -1),  # (-1, 2, 2, -1)
@@ -57,14 +68,14 @@ class ImageRecognition:
 
         return best_match
 
-    def get_raw_champions(self, rois: list[tuple[int, int, int, int]]) -> list[str]:
+    def get_raw_champions(self, rois: list[tuple[int, int, int, int]], images: dict[str, np.ndarray]) -> list[str]:
         # Iterate over each ROI to identify champions
         identified_champions = []
 
         for index, roi in enumerate(rois):
             x, y, w, h = roi
             roi_image = self.screenshot[y : y + h, x : x + w]
-            champion = self.match_champion(roi_image, self.champion_images)
+            champion = self.match_champion(roi_image, images)
             if champion == "MonkeyKing":
                 champion = "Wukong"
             while champion is None:
@@ -81,16 +92,22 @@ class ImageRecognition:
             identified_champions.append(champion)
         return identified_champions
 
-    def calculate_rois(self, indexes: list[int] | None = None) -> list[tuple[int, int, int, int]]:
+    def calculate_rois(
+        self, side: Literal["left", "right"] = "left", factor: float = 0.2, hex_colors: list[str] = None
+    ) -> list[tuple[int, int, int, int]]:
         # Define the region on the left side where the portraits are located
         height, width = self.screenshot.shape[:2]
-        left_side = self.screenshot[0:height, 0 : int(width * 0.2)]  # Adjust the width percentage as needed
+
+        if side == "left":
+            crop = self.screenshot[0:height, 0 : int(width * factor)]
+        else:
+            crop = self.screenshot[0:height, int(width * (1 - factor)) : width]
 
         # Convert the cropped left side of the image from BGR to HSV color space
-        hsv_image = cv2.cvtColor(left_side, cv2.COLOR_BGR2HSV)
+        hsv_image = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
 
-        # Define the hex color codes for the borders
-        hex_colors = ["#eec133", "#846f36", "#8c7332", "#deb533"]
+        if hex_colors is None:
+            hex_colors = ["#eec133", "#846f36", "#8c7332", "#deb533"]
 
         # Convert hex to HSV
         bgr_colors = [tuple(int(hex_color.lstrip("#")[i : i + 2], 16) for i in (4, 2, 0)) for hex_color in hex_colors]
@@ -137,28 +154,30 @@ class ImageRecognition:
                 filtered_contours.append(contour)
         for i, contour in enumerate(filtered_contours, 1):
             x, y, w, h = cv2.boundingRect(contour)
-            if indexes is not None and i in indexes:
-                x = x + self.adjustments.get(i)[0]
-                w = w + self.adjustments.get(i)[1]
-                h = h + self.adjustments.get(i)[2]
-                y = y + self.adjustments.get(i)[3]
-            cv2.rectangle(left_side, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            final_rois.append((x, y, w, h))
+            if side == "right" and i % 2 == 0:
+                cv2.rectangle(crop, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                final_rois.append((x, y, w, h))
+            elif side == "left":
+                cv2.rectangle(crop, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                final_rois.append((x, y, w, h))
 
         # Show the detected ROIs in the cropped left side
         if self.debug:
-            cv2.imshow("Detected ROIs on Left Side", left_side)
+            cv2.imshow("Detected ROIs", crop)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
         final_rois.reverse()
         return final_rois
 
     def get_champions(self) -> list[str]:
-        rois = self.calculate_rois(indexes=[1, 9])
-        return self.get_raw_champions(rois)
+        rois = self.calculate_rois()
+        return self.get_raw_champions(rois, self.champion_images)
 
 
 if __name__ == "__main__":
     img_recognition = ImageRecognition(debug=True)
-    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test6.png"))
+    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test13.png"))
     print(img_recognition.get_champions())
+    # print(img_recognition.calculate_rois("right", 0.7, ["#5c5b57"]))
+    # print(img_recognition.get_raw_champions(img_recognition.calculate_rois("right", 0.2, ["#5c5b57"]),
+    #                                         img_recognition.ban_images))
