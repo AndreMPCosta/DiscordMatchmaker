@@ -1,6 +1,5 @@
 from asyncio import create_task
 from dataclasses import dataclass, field
-from json import dumps
 
 from aiohttp import ClientSession
 import cv2
@@ -23,6 +22,7 @@ class Reset(Command):
     async def execute(self, message, *args):
         self.client.playing_list = []
         self.client.playing_list_ids = {}
+        create_task(self.update_redis())
         await message.channel.send("Lobby has been reset.")
 
 
@@ -44,8 +44,7 @@ class Play(Command):
             elif (player.summoner, player.tag) not in self.client.playing_list:
                 self.client.playing_list.append((player.summoner, player.tag))
                 self.client.playing_list_ids[player.summoner] = player.discord_id
-                create_task(self.client.redis.set("playing_list", dumps(self.client.playing_list)))
-                create_task(self.client.redis.set("playing_list_ids", dumps(self.client.playing_list_ids)))
+                create_task(self.update_redis())
             else:
                 await message.channel.send("You are already in the lobby.")
                 return
@@ -64,8 +63,7 @@ class Remove(Command):
         if (player.summoner, player.tag) in self.client.playing_list:
             self.client.playing_list.remove((player.summoner, player.tag))
             self.client.playing_list_ids.pop(player.summoner)
-            create_task(self.client.redis.set("playing_list", dumps(self.client.playing_list)))
-            create_task(self.client.redis.set("playing_list_ids", dumps(self.client.playing_list_ids)))
+            create_task(self.update_redis())
             await self.client.send_ready_list(message)
         else:
             await message.channel.send("You are not in the lobby.")

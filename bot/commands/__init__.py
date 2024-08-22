@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from json import dumps
 
 from discord import Message
 
@@ -39,3 +40,7 @@ class Command(ABC):
         example = f"\n{self.example}" if self.example != self.usage else None
         _message = f"{description}\n" f"Usage: {usage}{f'Example: {example}' if example else ''}"
         await message.channel.send(_message)
+
+    async def update_redis(self):
+        self.client.redis.set("playing_list", dumps(self.client.playing_list))
+        self.client.redis.set("playing_list_ids", dumps(self.client.playing_list_ids))
