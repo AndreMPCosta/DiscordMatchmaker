@@ -8,6 +8,7 @@ name = "pypi"
 aiohttp = "*"
 python-dotenv = "*"
 fastapi = { extras = ["standard"], version = "*" }
+pydantic = "*"
 beanie = "*"
 motor = { extras = ["encryption"], version = "*" }
 orjson = "*"
