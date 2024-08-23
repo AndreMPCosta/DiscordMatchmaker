@@ -10,7 +10,7 @@ class PlayerStats(BaseModel):
     deaths: int
     assists: int
     minions_killed: int
-    gold_earned: float
+    gold_earned: int
     level: int
 
     @property
@@ -49,3 +49,4 @@ class Match(Document):
     duration: str
     date: datetime
     winner: Literal["blue", "red"]
+    mvp: str | None = None

@@ -18,6 +18,8 @@ rapidocr-onnxruntime = "*"
 pillow = "*"
 aioredis = "*"
 dateparser = "*"
+uvloop = {version = "*", markers="sys_platform != 'win32'"}
+pytesseract = "*"
 
 [dev-packages]
 ruff = "*"
