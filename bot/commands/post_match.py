@@ -25,11 +25,11 @@ class Vote(Command):
             await message.channel.send(
                 f"You can't vote anymore, the winner of this round is {self.client.last_match.mvp}"
             )
-        elif len(self.client.playing_list) < 10:
+        elif not self.client.last_match:
             await message.channel.send("The game did not start yet.")
         elif voter in self.client.voters:
             await message.channel.send("You already voted.")
-        if self.client.playing_list_ids.get(self.client.playing_list[player][0]) not in [
+        elif self.client.playing_list_ids.get(self.client.playing_list[player][0]) not in [
             player.discord_id
             for player in getattr(self.client.last_match, f"{self.client.last_match.winner}_team").players
         ]:
