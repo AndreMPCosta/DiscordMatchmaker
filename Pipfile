@@ -14,9 +14,15 @@ motor = { extras = ["encryption"], version = "*" }
 orjson = "*"
 numpy = "*"
 opencv-python = "*"
-rapidocr-onnxruntime = "*"
 pillow = "*"
 aioredis = "*"
+dateparser = "*"
+uvloop = {version = "*", markers="sys_platform != 'win32'"}
+google-generativeai = "*"
+tzdata = "*"
+prettytable = "*"
+certifi = {version = "*", markers="sys_platform == 'darwin'"}
+pymongo = "*"
 
 [dev-packages]
 ruff = "*"

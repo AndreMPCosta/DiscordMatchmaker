@@ -12,7 +12,6 @@ from bot.commands import ClientSingleton
 from bot.commands.account import Register
 from bot.commands.generic import Help
 from bot.commands.match import Close, Play, Remove, Reset, Upload
-from bot.db_utils import load_json
 from clients.redis import retrieve_async_redis_client
 
 
@@ -31,7 +30,7 @@ class MatchMaker(Client):
     def __init__(self, *, intents: Intents, **options: Any):
         super().__init__(intents=intents, **options)
         self.redis: Redis = retrieve_async_redis_client()
-        self.playing_list = []
+        self.playing_list: list[tuple[str, str]] = []
         # [
         #     ("Demon Hand", "Water"),
         #     ("NinaKravitzzz", "EUW"),
@@ -45,7 +44,6 @@ class MatchMaker(Client):
         #     ("2n2u", "EUW"),
         # ]
         self.playing_list_ids = {}
-        self.players = load_json().get("players")
         self.commands = Commands()
 
     async def on_ready(self):
@@ -57,6 +55,18 @@ class MatchMaker(Client):
         self.playing_list = (
             [(player, tag) for player, tag in loads(from_redis_playing_list)] if from_redis_playing_list else []
         )
+        self.playing_list = [
+            ("PretinhoDaGuiné", "EUW"),
+            ("Elesh95", "EUW"),
+            ("Toy", "2228"),
+            ("popping off", "EUW"),
+            ("Mazzeee", "EUW"),
+            ("locked in", "EUW"),
+            ("zau", "EUW"),
+            ("salganhadaa", "SIMOR"),
+            ("Filipados", "EUW"),
+            ("Cardoso00", "EUW"),
+        ]
         self.playing_list_ids = loads(from_redis_playing_list_ids) if from_redis_playing_list_ids else {}
 
     async def send_ready_list(self, message: Message):
