@@ -5,10 +5,12 @@ from aiohttp import ClientSession
 import cv2
 from discord import utils
 import numpy as np
+from PIL import Image
 
 from api.models.user import User
 from bot.commands import Command
 from bot.helpers import balance, beautify_teams
+from bot.ingestion.gemini import create_match
 from bot.ingestion.match import ImageRecognition
 
 
@@ -106,7 +108,12 @@ class Close(Command):
 @dataclass
 class Upload(Command):
     name: str = "upload"
-    description: str = "Upload a screenshot to create a match"
+    description: str = (
+        "Upload a screenshot to create a match, "
+        "please capture between starting on (0,0) coordinates "
+        "of the client and end before reaching the friends list, "
+        "so you can see until the bans + objectives"
+    )
     usage: str = "!upload"
     example: str = "!upload"
     image_recognition: ImageRecognition = field(default_factory=ImageRecognition)
@@ -122,6 +129,8 @@ class Upload(Command):
 
                 # Decode the image using OpenCV
                 image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+                await message.channel.send("Processing image...")
                 self.image_recognition.set_screenshot(image)
                 champions = self.image_recognition.get_champions()
-                await message.channel.send(f"Match created with champions: {', '.join(champions)}")
+                match = create_match(self.client.playing_list, Image.fromarray(image), champions)
+                await message.channel.send(embed=match.create_embed())

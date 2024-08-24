@@ -1,10 +1,8 @@
-from asyncio import run
 from functools import lru_cache
 from pprint import pprint
 from re import search
 from typing import Any
 
-from beanie import init_beanie
 import cv2
 from cv2 import Mat
 from dateparser import parse
@@ -14,7 +12,6 @@ from PIL import Image, ImageEnhance
 from pytesseract import image_to_string
 from rapidocr_onnxruntime import RapidOCR
 
-from api.db import get_db
 from api.models.match import Match
 from bot import get_project_root
 from bot.utils import remove_accents
@@ -391,7 +388,6 @@ class OCR:
 
 
 if __name__ == "__main__":
-    run(init_beanie(database=get_db(), document_models=[Match]))
     ocr = OCR(f"{get_project_root()}/tests/data/test10.png")
     match = ocr.create_match("PretinhoDaGuiné")
     pprint(match.model_dump())

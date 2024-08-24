@@ -169,15 +169,15 @@ class ImageRecognition:
         final_rois.reverse()
         return final_rois
 
-    def get_champions(self) -> tuple[list[tuple[int, int, int, int]], list[str]]:
-        rois = self.calculate_rois()
-        return rois, self.get_raw_champions(rois, self.champion_images)
+    def get_champions(self) -> list[str]:
+        _rois = self.calculate_rois()
+        return self.get_raw_champions(_rois, self.champion_images)
 
 
 if __name__ == "__main__":
     img_recognition = ImageRecognition(debug=True)
-    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test13.png"))
-    rois, champions = img_recognition.get_champions()
+    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test10.png"))
+    champions = img_recognition.get_champions()
     print(champions)
     # print(img_recognition.calculate_rois("right", 0.7, ["#5c5b57"]))
     # print(img_recognition.get_raw_champions(img_recognition.calculate_rois("right", 0.2, ["#5c5b57"]),

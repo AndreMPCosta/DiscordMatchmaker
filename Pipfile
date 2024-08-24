@@ -18,8 +18,9 @@ pillow = "*"
 aioredis = "*"
 dateparser = "*"
 uvloop = {version = "*", markers="sys_platform != 'win32'"}
-
 google-generativeai = "*"
+tzdata = "*"
+prettytable = "*"
 
 [dev-packages]
 ruff = "*"
