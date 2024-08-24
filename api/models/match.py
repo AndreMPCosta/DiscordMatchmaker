@@ -41,6 +41,7 @@ class TeamStats(BaseModel):
 
 class Player(BaseModel):
     name: str
+    discord_id: int | None = Field(..., description="The Discord user ID")
     picked_champion: str | None = None
     stats: PlayerStats
 

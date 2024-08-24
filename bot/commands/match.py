@@ -132,4 +132,6 @@ class Upload(Command):
                 await message.channel.send("Processing image, this may take a few seconds...")
                 self.image_recognition.set_screenshot(image)
                 champions = self.image_recognition.get_champions()
-                create_task(create_match(self.client.playing_list, Image.fromarray(image), champions, True, message))
+                create_task(
+                    create_match(self.client, Image.fromarray(image), champions, True, message)
+                )

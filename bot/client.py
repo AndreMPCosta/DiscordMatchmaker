@@ -7,6 +7,7 @@ from beanie import init_beanie
 from discord import Client, Intents, Message
 
 from api.db import get_db
+from api.models.match import Match
 from api.models.user import User
 from bot.commands import ClientSingleton
 from bot.commands.account import Register
@@ -31,6 +32,7 @@ class MatchMaker(Client):
         super().__init__(intents=intents, **options)
         self.redis: Redis = retrieve_async_redis_client()
         self.playing_list: list[tuple[str, str]] = []
+        self.last_match: Match | None = None
         # [
         #     ("Demon Hand", "Water"),
         #     ("NinaKravitzzz", "EUW"),
