@@ -4,7 +4,7 @@ from logging import getLogger
 from os import environ
 from pprint import pprint
 
-from discord import Message, Intents
+from discord import Intents, Message
 from dotenv import load_dotenv
 import google.generativeai as genai
 from PIL import Image
@@ -21,11 +21,11 @@ logger = getLogger("gemini")
 
 
 async def create_match(
-        client: MatchMaker,
-        image: Image,
-        champions: list[str],
-        send_match_details: bool = False,
-        message: Message | None = None,
+    client: MatchMaker,
+    image: Image,
+    champions: list[str],
+    send_match_details: bool = False,
+    message: Message | None = None,
 ) -> MatchDocument:
     prompt = f"""
     Based on this classes:\n

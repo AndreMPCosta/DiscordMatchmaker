@@ -3,7 +3,7 @@ from json import loads
 from typing import Any
 
 from aioredis import Redis
-from beanie import init_beanie
+from beanie import PydanticObjectId, init_beanie
 from discord import Client, Intents, Message
 
 from api.db import get_db
@@ -54,6 +54,7 @@ class MatchMaker(Client):
         await init_beanie(database=get_db(), document_models=[User])
         from_redis_playing_list = await self.redis.get("playing_list")
         from_redis_playing_list_ids = await self.redis.get("playing_list_ids")
+        from_redis_last_match_id = await self.redis.get("last_match_id")
         self.playing_list = (
             [(player, tag) for player, tag in loads(from_redis_playing_list)] if from_redis_playing_list else []
         )
@@ -70,6 +71,7 @@ class MatchMaker(Client):
             ("Cardoso00", "EUW"),
         ]
         self.playing_list_ids = loads(from_redis_playing_list_ids) if from_redis_playing_list_ids else {}
+        self.last_match = PydanticObjectId(from_redis_last_match_id) if from_redis_last_match_id else None
 
     async def send_ready_list(self, message: Message):
         output_string = "Ready to play: \n"

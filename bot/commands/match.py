@@ -24,7 +24,7 @@ class Reset(Command):
     async def execute(self, message, *args):
         self.client.playing_list = []
         self.client.playing_list_ids = {}
-        create_task(self.update_redis())
+        create_task(self.update_redis_playing_list())
         await message.channel.send("Lobby has been reset.")
 
 
@@ -46,7 +46,7 @@ class Play(Command):
             elif (player.summoner, player.tag) not in self.client.playing_list:
                 self.client.playing_list.append((player.summoner, player.tag))
                 self.client.playing_list_ids[player.summoner] = player.discord_id
-                create_task(self.update_redis())
+                create_task(self.update_redis_playing_list())
             else:
                 await message.channel.send("You are already in the lobby.")
                 return
@@ -65,7 +65,7 @@ class Remove(Command):
         if (player.summoner, player.tag) in self.client.playing_list:
             self.client.playing_list.remove((player.summoner, player.tag))
             self.client.playing_list_ids.pop(player.summoner)
-            create_task(self.update_redis())
+            create_task(self.update_redis_playing_list())
             await self.client.send_ready_list(message)
         else:
             await message.channel.send("You are not in the lobby.")
@@ -132,6 +132,4 @@ class Upload(Command):
                 await message.channel.send("Processing image, this may take a few seconds...")
                 self.image_recognition.set_screenshot(image)
                 champions = self.image_recognition.get_champions()
-                create_task(
-                    create_match(self.client, Image.fromarray(image), champions, True, message)
-                )
+                create_task(create_match(self.client, Image.fromarray(image), champions, True, message))
