@@ -1,8 +1,13 @@
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 
 from beanie import Document
-from pydantic import BaseModel, Field
+from dateparser import parse
+from pydantic import BaseModel, BeforeValidator, Field
+
+
+def convert_to_date(date: str) -> datetime:
+    return parse(date)
 
 
 class PlayerStats(BaseModel):
@@ -43,10 +48,16 @@ class Team(BaseModel):
     stats: TeamStats
 
 
-class Match(Document):
+class Match(BaseModel):
     blue_team: Team
     red_team: Team
     duration: str
-    date: datetime
+    date: Annotated[datetime, BeforeValidator(convert_to_date)]
     winner: Literal["blue", "red"]
     mvp: str | None = None
+
+
+class MatchDocument(Document, Match):
+    class Settings:
+        collection = "matches"
+        indexes = ["date", "winner"]

@@ -14,12 +14,12 @@ motor = { extras = ["encryption"], version = "*" }
 orjson = "*"
 numpy = "*"
 opencv-python = "*"
-rapidocr-onnxruntime = "*"
 pillow = "*"
 aioredis = "*"
 dateparser = "*"
 uvloop = {version = "*", markers="sys_platform != 'win32'"}
-pytesseract = "*"
+
+google-generativeai = "*"
 
 [dev-packages]
 ruff = "*"
