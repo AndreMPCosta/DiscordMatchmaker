@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bc6973d5fcd8ade945a713d72cb17b675abc3697efba732680b83feab6c8fc2c"
+            "sha256": "c9ea4246b5aa394aa91f6254b3cb8e511c8fead20f8a1888cd2566083d07c06e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -281,7 +281,6 @@
                 "sha256:c198e21b1289c2ab85ee4e67bb4b4ef3ead0892059901a8d5b622f24a1101e90"
             ],
             "index": "pypi",
-            "markers": "sys_platform == 'darwin'",
             "version": "==2024.7.4"
         },
         "cffi": {
