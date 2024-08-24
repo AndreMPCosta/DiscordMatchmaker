@@ -39,9 +39,12 @@ class TeamStats(BaseModel):
     void_grubs_slain: int
 
 
-class Player(BaseModel):
+class PlayerBase(BaseModel):
     name: str
     discord_id: int | None = Field(..., description="The Discord user ID")
+
+
+class Player(PlayerBase):
     picked_champion: str | None = None
     stats: PlayerStats
 
@@ -52,13 +55,17 @@ class Team(BaseModel):
     stats: TeamStats
 
 
+class MVP(PlayerBase):
+    votes: int
+
+
 class Match(BaseModel):
     blue_team: Team
     red_team: Team
     duration: str
     date: Annotated[datetime, BeforeValidator(convert_to_date)]
     winner: Literal["blue", "red"]
-    mvp: str | None = None
+    mvp: MVP | None = None
 
     async def send_match_details(self, message: Message):
         """

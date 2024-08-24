@@ -12,7 +12,8 @@ from api.models.user import User
 from bot.commands import ClientSingleton
 from bot.commands.account import Register
 from bot.commands.generic import Help
-from bot.commands.match import Close, Play, Remove, Reset, Upload
+from bot.commands.match import Close, Play, Playlist, Remove, Reset, Upload
+from bot.commands.post_match import Vote
 from clients.redis import retrieve_async_redis_client
 
 
@@ -21,9 +22,11 @@ class Commands:
     register: Register = Register()
     reset: Reset = Reset()
     play: Play = Play()
+    playlist: Playlist = Playlist()
     remove: Remove = Remove()
     close: Close = Close()
     upload: Upload = Upload()
+    vote: Vote = Vote()
     help: Help = Help()
 
 
@@ -33,6 +36,8 @@ class MatchMaker(Client):
         self.redis: Redis = retrieve_async_redis_client()
         self.playing_list: list[tuple[str, str]] = []
         self.last_match: Match | None = None
+        self.mvp_votes = []
+        self.voters = []
         # [
         #     ("Demon Hand", "Water"),
         #     ("NinaKravitzzz", "EUW"),
@@ -98,13 +103,10 @@ class MatchMaker(Client):
                     await self.commands.help.execute(message)
             case ["!ping"]:
                 await message.channel.send("pong")
-            case ["!reset"]:
-                self.playing_list = []
-                self.playing_list_ids = {}
-            case ["!playlist"]:
-                await self.send_ready_list(message)
             case ["!register", *summoner]:
                 await getattr(self.commands, "register").execute(message, summoner)
+            case ["!vote", *player]:
+                await getattr(self.commands, "vote").execute(message, player, message.author.id)
             case _:  # default
                 if "!" in content:
                     await getattr(self.commands, content.split()[0].replace("!", "")).execute(message)

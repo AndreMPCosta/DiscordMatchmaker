@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 from aiohttp import ClientSession
 import cv2
-from discord import utils
+from discord import Message, utils
 import numpy as np
 from PIL import Image
 
@@ -15,13 +15,24 @@ from bot.ingestion.match import ImageRecognition
 
 
 @dataclass
+class Playlist(Command):
+    name: str = "playlist"
+    description: str = "Show the current lobby"
+    usage: str = "!playlist"
+    example: str = "!playlist"
+
+    async def execute(self, message: Message, *args):
+        await self.client.send_ready_list(message)
+
+
+@dataclass
 class Reset(Command):
     name: str = "reset"
     description: str = "Reset the lobby playing list"
     usage: str = "!reset"
     example: str = "!reset"
 
-    async def execute(self, message, *args):
+    async def execute(self, message: Message, *args):
         self.client.playing_list = []
         self.client.playing_list_ids = {}
         create_task(self.update_redis_playing_list())
@@ -35,7 +46,7 @@ class Play(Command):
     usage: str = "!play"
     example: str = "!play"
 
-    async def execute(self, message, *args):
+    async def execute(self, message: Message, *args):
         if len(self.client.playing_list) == 10:
             await message.channel.send("The lobby is full.")
         else:
@@ -60,7 +71,7 @@ class Remove(Command):
     usage: str = "!remove"
     example: str = "!remove"
 
-    async def execute(self, message, *args):
+    async def execute(self, message: Message, *args):
         player = await User.get_by_discord_id(int(message.author.id))
         if (player.summoner, player.tag) in self.client.playing_list:
             self.client.playing_list.remove((player.summoner, player.tag))
@@ -78,7 +89,7 @@ class Close(Command):
     usage: str = "!close"
     example: str = "!close"
 
-    async def execute(self, message, *args):
+    async def execute(self, message: Message, *args):
         if len(self.client.playing_list) < 10:
             await message.channel.send("You don't have enough players to play, you need at least 10")
         else:
@@ -118,7 +129,7 @@ class Upload(Command):
     example: str = "!upload"
     image_recognition: ImageRecognition = field(default_factory=ImageRecognition)
 
-    async def execute(self, message, *args):
+    async def execute(self, message: Message, *args):
         async with ClientSession() as session:
             async with session.get(message.attachments[0].url) as response:
                 # Read the image as bytes

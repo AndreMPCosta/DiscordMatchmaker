@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from json import dumps
+from typing import TYPE_CHECKING
 
 from discord import Message
+
+if TYPE_CHECKING:
+    from bot.client import MatchMaker
 
 
 class ClientSingleton:
@@ -27,7 +31,7 @@ class Command(ABC):
     example: str
 
     @property
-    def client(self):
+    def client(self) -> "MatchMaker":
         return ClientSingleton.get_client()
 
     @abstractmethod

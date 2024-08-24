@@ -1,17 +1,14 @@
-from asyncio import run
 from json import loads
 from logging import getLogger
 from os import environ
-from pprint import pprint
+from typing import TYPE_CHECKING
 
-from discord import Intents, Message
+from discord import Message
 from dotenv import load_dotenv
 import google.generativeai as genai
 from PIL import Image
 
 from api.models.match import MatchDocument
-from bot import get_project_root
-from bot.client import MatchMaker
 
 load_dotenv()
 genai.configure(api_key=environ.get("GOOGLE_API_KEY"))
@@ -20,8 +17,12 @@ model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 logger = getLogger("gemini")
 
 
+if TYPE_CHECKING:
+    from bot.client import MatchMaker
+
+
 async def create_match(
-    client: MatchMaker,
+    client: "MatchMaker",
     image: Image,
     champions: list[str],
     send_match_details: bool = False,
@@ -83,28 +84,3 @@ async def create_match(
     await match.save()
     client.last_match = match
     return match
-
-
-if __name__ == "__main__":
-    _intents = Intents.default()
-    _intents.message_content = True
-    client = MatchMaker(intents=_intents)
-    _match = run(
-        create_match(
-            client=client,
-            image=Image.open(f"{get_project_root()}/tests/data/test10.png"),
-            champions=[
-                "Gragas",
-                "Thresh",
-                "Khazix",
-                "Yasuo",
-                "Kaisa",
-                "Lux",
-                "Blitzcrank",
-                "Caitlyn",
-                "Lillia",
-                "Wukong",
-            ],
-        )
-    )
-    pprint(_match)
