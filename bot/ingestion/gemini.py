@@ -1,13 +1,15 @@
+from asyncio import run
 from json import loads
 from logging import getLogger
 from os import environ
 from pprint import pprint
 
+from discord import Message
 from dotenv import load_dotenv
 import google.generativeai as genai
 from PIL import Image
 
-from api.models.match import Match
+from api.models.match import MatchDocument
 from bot import get_project_root
 
 load_dotenv()
@@ -17,11 +19,13 @@ model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 logger = getLogger("gemini")
 
 
-def create_match(
+async def create_match(
     playing_list: list[tuple[str, str]],
     image: Image,
     champions: list[str],
-) -> Match:
+    send_match_details: bool = False,
+    message: Message | None = None,
+) -> MatchDocument:
     prompt = f"""
     Based on this classes:\n
     class PlayerStats(BaseModel):
@@ -71,24 +75,41 @@ def create_match(
     for team in ["blue", "red"]:
         for player in json_response[f"{team}_team"]["players"]:
             player["picked_champion"] = champions.pop(0)
-    return Match(**json_response)
+    match = MatchDocument(**json_response)
+    if send_match_details:
+        await match.send_match_details(message)
+    await match.save()
+    return match
 
 
 if __name__ == "__main__":
-    _match = create_match(
-        playing_list=[
-            ("PretinhoDaGuiné", "EUW"),
-            ("Elesh95", "EUW"),
-            ("Toy", "2228"),
-            ("popping off", "EUW"),
-            ("Mazzeee", "EUW"),
-            ("locked in", "EUW"),
-            ("zau", "EUW"),
-            ("salganhadaa", "SIMOR"),
-            ("Filipados", "EUW"),
-            ("Cardoso00", "EUW"),
-        ],
-        image=Image.open(f"{get_project_root()}/tests/data/test10.png"),
-        champions=["Gragas", "Thresh", "Khazix", "Yasuo", "Kaisa", "Lux", "Blitzcrank", "Caitlyn", "Lillia", "Wukong"],
+    _match = run(
+        create_match(
+            playing_list=[
+                ("PretinhoDaGuiné", "EUW"),
+                ("Elesh95", "EUW"),
+                ("Toy", "2228"),
+                ("popping off", "EUW"),
+                ("Mazzeee", "EUW"),
+                ("locked in", "EUW"),
+                ("zau", "EUW"),
+                ("salganhadaa", "SIMOR"),
+                ("Filipados", "EUW"),
+                ("Cardoso00", "EUW"),
+            ],
+            image=Image.open(f"{get_project_root()}/tests/data/test10.png"),
+            champions=[
+                "Gragas",
+                "Thresh",
+                "Khazix",
+                "Yasuo",
+                "Kaisa",
+                "Lux",
+                "Blitzcrank",
+                "Caitlyn",
+                "Lillia",
+                "Wukong",
+            ],
+        )
     )
     pprint(_match)

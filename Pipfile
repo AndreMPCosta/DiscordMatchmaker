@@ -21,6 +21,8 @@ uvloop = {version = "*", markers="sys_platform != 'win32'"}
 google-generativeai = "*"
 tzdata = "*"
 prettytable = "*"
+certifi = {version = "*", markers="sys_platform == 'darwin'"}
+pymongo = "*"
 
 [dev-packages]
 ruff = "*"

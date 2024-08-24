@@ -3,9 +3,10 @@ from typing import Annotated, Literal
 
 from beanie import Document
 from dateparser import parse
-from discord import Embed
+from discord import Embed, Message
 from prettytable import PrettyTable
 from pydantic import BaseModel, BeforeValidator, Field
+from pymongo import DESCENDING, IndexModel
 
 
 def convert_to_date(date: str) -> datetime:
@@ -58,7 +59,7 @@ class Match(BaseModel):
     winner: Literal["blue", "red"]
     mvp: str | None = None
 
-    def create_embed(self) -> Embed:
+    async def send_match_details(self, message: Message):
         """
         Create an embed object with the match details.
 
@@ -72,18 +73,22 @@ class Match(BaseModel):
         winner = self.winner.capitalize()  # Capitalize winner name
 
         # Create embed object
-        embed = Embed(title=f"League of Legends Game Summary - {winner} Wins", color=0x00FFFF)
+        embed = Embed(
+            title=f"League of Legends Game Summary - {winner} Wins", color=0x007FFF if winner == "Blue" else 0xFF0000
+        )
         embed.add_field(name="Date", value=date, inline=True)
         embed.add_field(name="Duration", value=duration, inline=True)
+
+        await message.channel.send(embed=embed)
 
         # Team Stats
         table = PrettyTable()
         table.field_names = [
             "Team",
-            "Kills",
-            "Deaths",
-            "Assists",
-            "Total Gold",
+            "K",
+            "D",
+            "A",
+            "Gold",
             "Towers",
             "Inhibitors",
             "Barons",
@@ -108,12 +113,13 @@ class Match(BaseModel):
                     team.stats.void_grubs_slain,
                 ]
             )
-        embed.add_field(name="Team Stats", value=table.get_string(sortby="Team"), inline=False)
+        table.padding_width = 0
+        await message.channel.send(f"```ini\n{table}\n```")
 
-        # Player data
-        table = PrettyTable()
-        table.field_names = ["Player", "Champion", "Kills", "Deaths", "Assists", "KDA", "Minions", "Gold", "Level"]
         for index, team in enumerate((self.blue_team, self.red_team)):
+            # Player data
+            table = PrettyTable()
+            table.field_names = ["Player", "Champion", "Kills", "Deaths", "Assists", "KDA", "Minions", "Gold", "Level"]
             for player in team.players:
                 table.add_row(
                     [
@@ -128,14 +134,16 @@ class Match(BaseModel):
                         player.stats.level,
                     ]
                 )
-            embed.add_field(
-                name=f"Player Stats {'BLUE' if index == 0 else 'RED'}", value=table.get_string(), inline=False
-            )
-
-        return embed
+            table.padding_width = 0
+            await message.channel.send(f"```ini\n{table}\n```")
 
 
-class MatchDocument(Document, Match):
+class MatchDocument(Match, Document):
     class Settings:
-        collection = "matches"
-        indexes = ["date", "winner"]
+        name = "matches"
+        indexes = [
+            IndexModel(
+                [("date", DESCENDING)],
+                name="date_index",
+            ),
+        ]

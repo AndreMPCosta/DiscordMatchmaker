@@ -129,8 +129,7 @@ class Upload(Command):
 
                 # Decode the image using OpenCV
                 image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-                await message.channel.send("Processing image...")
+                await message.channel.send("Processing image, this may take a few seconds...")
                 self.image_recognition.set_screenshot(image)
                 champions = self.image_recognition.get_champions()
-                match = create_match(self.client.playing_list, Image.fromarray(image), champions)
-                await message.channel.send(embed=match.create_embed())
+                create_task(create_match(self.client.playing_list, Image.fromarray(image), champions, True, message))

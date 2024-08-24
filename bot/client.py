@@ -12,7 +12,6 @@ from bot.commands import ClientSingleton
 from bot.commands.account import Register
 from bot.commands.generic import Help
 from bot.commands.match import Close, Play, Remove, Reset, Upload
-from bot.db_utils import load_json
 from clients.redis import retrieve_async_redis_client
 
 
@@ -45,7 +44,6 @@ class MatchMaker(Client):
         #     ("2n2u", "EUW"),
         # ]
         self.playing_list_ids = {}
-        self.players = load_json().get("players")
         self.commands = Commands()
 
     async def on_ready(self):
