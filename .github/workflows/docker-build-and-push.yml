@@ -56,6 +56,8 @@ jobs:
 
   build-and-push:
     needs: lint-and-test
+    # Run the build-and-push job on push events only
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository code
