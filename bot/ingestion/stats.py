@@ -184,22 +184,22 @@ class OCR:
         # Convert back to NumPy array for OpenCV
         final_image_cv = np.array(sharpened_image)
 
-        # Apply a simple threshold to make text clear
-        _, thresholded_image = cv2.threshold(final_image_cv, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
         # Display the processed image for debugging
-        # cv2.imshow("Enhanced Image for OCR", thresholded_image)
+        # cv2.imshow("Enhanced Image for OCR", final_image_cv)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
         # Configure Tesseract to use only digits and slashes
         custom_config = r"--psm 7 -c tessedit_char_whitelist=0123456789/ "
         result = image_to_string(final_image_cv, config=custom_config)
         find = search(r"(\d+)(?:/)(\d+)(?:/)(\d+)", result)
-        self.team_2_stats = {
-            "kills": find.group(1),
-            "deaths": find.group(2),
-            "assists": find.group(3),
-        }
+        try:
+            self.team_2_stats = {
+                "kills": find.group(1),
+                "deaths": find.group(2),
+                "assists": find.group(3),
+            }
+        except AttributeError:
+            self.team_2_stats = {}
 
     def get_text(self) -> tuple[list[str], list[str], list[str]]:
         self.change_team2_color_v2()
@@ -209,34 +209,6 @@ class OCR:
 
         # Crop the left part of the image (0% to 80% of the width)
         left = self.image.crop((0, 0, int(width * 0.75), height))
-
-        # Crop the right part of the image (80% to 100% of the width)
-        most_left = self.image.crop((0, int(height * 0.2), int(width * 0.1), int(height * 0.6)))
-
-        # Load the image
-        image = cv2.cvtColor(np.array(most_left), cv2.COLOR_RGB2BGR)
-
-        # Convert to grayscale
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        # Increase contrast
-        contrast_enhancer = ImageEnhance.Contrast(Image.fromarray(gray))
-        contrasted_image = contrast_enhancer.enhance(3)  # Adjust the contrast as needed
-
-        # Sharpen the image
-        sharpen_enhancer = ImageEnhance.Sharpness(contrasted_image)
-        sharpened_image = sharpen_enhancer.enhance(2.0)  # Adjust sharpness as needed
-
-        # Apply binary thresholding (You might need to adjust the threshold value)
-        # _, thresh = cv2.threshold(gray, 130, 255, cv2.THRESH_BINARY_INV)
-
-        thresh = cv2.resize(gray, (gray.shape[1] * 3, gray.shape[0] * 3))
-
-        # Show threshold image for debugging
-        cv2.imshow("Threshold Image", thresh)
-        cv2.waitKey(0)
-
-        result = image_to_string(thresh, config=r"--psm 1 digits")
 
         right = self.image.crop((int(width * 0.8), int(0.3 * height), width, (int(height * 0.9))))
 
@@ -325,6 +297,12 @@ class OCR:
         find_teams = [_index for _index, value in enumerate(text_list_left) if "TEA".lower() in value.lower()]
         for team in ["blue", "red"]:
             find_team = find_teams[0 if team == "blue" else 1]
+            if not self.team_2_stats:
+                self.team_2_stats = {
+                    "kills": text_list_left[find_team + 1].split("/")[0],
+                    "deaths": text_list_left[find_team + 1].split("/")[1],
+                    "assists": text_list_left[find_team + 1].split("/")[2],
+                }
             kills, deaths, assists = (
                 text_list_left[find_team + 1].replace("X", "").strip().split("/")
                 if team == "blue"
@@ -345,7 +323,14 @@ class OCR:
                     level = text_list_left[find_team + 3 + sub_index + (index * 5)]
                     try:
                         level = int(level)
-                        if 1 < level <= 18:
+                        if level == 1:
+                            level = 11
+                            break
+                        elif 1 < level <= 18:
+                            break
+                        elif level > 18:
+                            str_level = str(level)
+                            level = int(str_level[0] + str_level[1])
                             break
                         else:
                             sub_index += 1
