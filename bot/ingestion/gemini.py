@@ -1,14 +1,17 @@
+from io import BytesIO
 from json import loads
 from logging import getLogger
 from os import environ
 from typing import TYPE_CHECKING
 
+from aiofiles import open as async_open
 from discord import Message
 from dotenv import load_dotenv
 import google.generativeai as genai
 from PIL import Image
 
 from api.models.match import MatchDocument
+from bot.consts import matches_folder
 
 load_dotenv()
 genai.configure(api_key=environ.get("GOOGLE_API_KEY"))
@@ -16,9 +19,13 @@ model = genai.GenerativeModel(model_name="gemini-1.5-pro")
 
 logger = getLogger("gemini")
 
-
 if TYPE_CHECKING:
     from bot.client import MatchMaker
+
+
+async def save_image(path: str, image: memoryview) -> None:
+    async with async_open(path, "wb") as file:
+        await file.write(image)
 
 
 async def create_match(
@@ -82,5 +89,8 @@ async def create_match(
     if send_match_details:
         await match.send_match_details(message)
     await match.save()
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    await save_image(f"{matches_folder}/{str(match.id)}.png", buffer.getbuffer())
     client.last_match = match
     return match

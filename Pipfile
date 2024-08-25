@@ -23,6 +23,7 @@ tzdata = "*"
 prettytable = "*"
 certifi = "*"
 pymongo = "*"
+aiofiles = "*"
 
 [dev-packages]
 ruff = "*"

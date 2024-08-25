@@ -67,6 +67,7 @@ points = {
 }
 
 data_folder = normpath(f"{get_project_root()}/data")
+matches_folder = normpath(f"{data_folder}/matches")
 
 threshold = 5  # max number of points of difference between teams
 
