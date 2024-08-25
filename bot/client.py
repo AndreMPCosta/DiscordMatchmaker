@@ -62,7 +62,7 @@ class MatchMaker(Client):
         from_redis_playing_list = await self.redis.get("playing_list")
         from_redis_playing_list_ids = await self.redis.get("playing_list_ids")
         redis_match_id = await self.redis.get("last_match_id")
-        from_redis_last_match_id = redis_match_id if await redis_match_id else None
+        from_redis_last_match_id = redis_match_id if redis_match_id else None
         self.playing_list = (
             [(player, tag) for player, tag in loads(from_redis_playing_list)] if from_redis_playing_list else []
         )
