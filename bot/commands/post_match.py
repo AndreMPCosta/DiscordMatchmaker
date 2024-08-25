@@ -100,7 +100,7 @@ class Vote(Command):
 @dataclass
 class ForceVote(Command):
     name: str = "force_vote"
-    description: str = "Force the mvp vote"
+    description: str = "Force the mvp vote (only available for admins)"
     usage: str = "!force_vote <player>"
     example: str = "!force_vote 2"
 
