@@ -105,7 +105,7 @@ class ForceVote(Command):
     example: str = "!force_vote 2"
 
     async def execute(self, message: Message, *args):
-        player, voter = args
+        player = args[0]
         if not self.client.last_match:
             await message.channel.send("The game did not start yet.")
         elif "Admin".lower() not in [role.name.lower() for role in message.author.roles]:

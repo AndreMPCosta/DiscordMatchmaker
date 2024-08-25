@@ -110,11 +110,17 @@ class MatchMaker(Client):
                 await message.channel.send("pong")
             case ["!register", *summoner]:
                 await getattr(self.commands, "register").execute(message, summoner)
+                await self.commands.register.show_log(message, summoner)
             case ["!vote", *player]:
                 await getattr(self.commands, "vote").execute(message, player, message.author.id)
+                await self.commands.vote.show_log(message, player)
+            case ["!force_vote", *player]:
+                await getattr(self.commands, "force_vote").execute(message, player)
+                await self.commands.force_vote.show_log(message, player)
             case _:  # default
                 if "!" in content[0]:
                     await getattr(self.commands, content.split()[0].replace("!", "")).execute(message)
+                    await getattr(self.commands, content.split()[0].replace("!", "")).show_log(message)
 
 
 _intents = Intents.default()

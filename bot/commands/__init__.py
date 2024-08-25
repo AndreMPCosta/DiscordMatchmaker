@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from json import dumps
+from logging import getLogger
 from typing import TYPE_CHECKING
 
 from discord import Message
+
+logger = getLogger("commands")
 
 if TYPE_CHECKING:
     from bot.client import MatchMaker
@@ -37,6 +40,12 @@ class Command(ABC):
     @abstractmethod
     async def execute(self, message: Message, *args):
         pass
+
+    async def show_log(self, message: Message, *args):
+        if args:
+            logger.debug(f"!{self.name} {' '.join(args)} | Called by: {message.author.name}")
+        else:
+            logger.debug(f"!{self.name} | Called by: {message.author.name}")
 
     async def show_help(self, message: Message):
         description = self.description
