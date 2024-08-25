@@ -1,4 +1,4 @@
-from asyncio import create_task
+from asyncio import Task, create_task
 from dataclasses import dataclass, field
 
 from aiohttp import ClientSession
@@ -7,8 +7,10 @@ from discord import Message, utils
 import numpy as np
 from PIL import Image
 
+from api.models.match import MatchDocument
 from api.models.user import User
 from bot.commands import Command
+from bot.commands.post_match import show_mvp
 from bot.helpers import balance, beautify_teams
 from bot.ingestion.gemini import create_match
 from bot.ingestion.match import ImageRecognition
@@ -143,4 +145,28 @@ class Upload(Command):
                 await message.channel.send("Processing image, this may take a few seconds...")
                 self.image_recognition.set_screenshot(image)
                 champions = self.image_recognition.get_champions()
-                create_task(create_match(self.client, Image.fromarray(image), champions, True, message))
+                # Run create_match in a background task
+                task: Task = create_task(self.run_create_match(image, champions, message))
+                # Notify when the task is completed
+                task.add_done_callback(lambda t: create_task(self.on_task_complete(t, message)))
+
+    async def run_create_match(self, image: np.ndarray, champions: list[str], message: Message) -> MatchDocument:
+        try:
+            # Run the create_match function asynchronously
+            result: MatchDocument = await create_match(self.client, Image.fromarray(image), champions, True, message)
+            return result
+        except Exception as e:
+            # Handle exceptions and notify user
+            await message.channel.send(f"An error occurred while creating the match: {e}")
+
+    async def on_task_complete(self, task: Task, message: Message) -> None:
+        try:
+            match: MatchDocument = task.result()
+            if match:
+                winning_team = match.blue_team if match.winner == "blue" else match.red_team
+                self.client.eligible_mvps = winning_team.players
+                await show_mvp(self.client, message)
+            else:
+                await message.channel.send("Failed to create match.")
+        except (Exception,) as e:
+            await message.channel.send(f"An error occurred after processing: {e}")

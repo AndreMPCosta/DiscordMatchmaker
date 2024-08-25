@@ -7,13 +7,13 @@ from beanie import PydanticObjectId, init_beanie
 from discord import Client, Intents, Message
 
 from api.db import get_db
-from api.models.match import Match
+from api.models.match import MatchDocument, Player
 from api.models.user import User
 from bot.commands import ClientSingleton
 from bot.commands.account import Register
 from bot.commands.generic import Help
 from bot.commands.match import Close, Play, Playlist, Remove, Reset, Upload
-from bot.commands.post_match import Vote
+from bot.commands.post_match import MVPList, Vote
 from clients.redis import retrieve_async_redis_client
 
 
@@ -27,6 +27,7 @@ class Commands:
     close: Close = Close()
     upload: Upload = Upload()
     vote: Vote = Vote()
+    mvp: MVPList = MVPList()
     help: Help = Help()
 
 
@@ -35,9 +36,10 @@ class MatchMaker(Client):
         super().__init__(intents=intents, **options)
         self.redis: Redis = retrieve_async_redis_client()
         self.playing_list: list[tuple[str, str]] = []
-        self.last_match: Match | None = None
-        self.mvp_votes = []
-        self.voters = []
+        self.last_match: MatchDocument | None = None
+        self.last_match_id: PydanticObjectId | None = None
+        self.mvp_votes: dict[int, Player] = dict()
+        self.eligible_mvps: list[Player] = []
         # [
         #     ("Demon Hand", "Water"),
         #     ("NinaKravitzzz", "EUW"),
@@ -59,7 +61,8 @@ class MatchMaker(Client):
         await init_beanie(database=get_db(), document_models=[User])
         from_redis_playing_list = await self.redis.get("playing_list")
         from_redis_playing_list_ids = await self.redis.get("playing_list_ids")
-        from_redis_last_match_id = await self.redis.get("last_match_id")
+        redis_match_id = await self.redis.get("last_match_id")
+        from_redis_last_match_id = redis_match_id if await redis_match_id else None
         self.playing_list = (
             [(player, tag) for player, tag in loads(from_redis_playing_list)] if from_redis_playing_list else []
         )
@@ -76,7 +79,7 @@ class MatchMaker(Client):
             ("Cardoso00", "EUW"),
         ]
         self.playing_list_ids = loads(from_redis_playing_list_ids) if from_redis_playing_list_ids else {}
-        self.last_match = PydanticObjectId(from_redis_last_match_id) if from_redis_last_match_id else None
+        self.last_match_id = PydanticObjectId(from_redis_last_match_id) if from_redis_last_match_id else None
 
     async def send_ready_list(self, message: Message):
         output_string = "Ready to play: \n"
@@ -108,7 +111,7 @@ class MatchMaker(Client):
             case ["!vote", *player]:
                 await getattr(self.commands, "vote").execute(message, player, message.author.id)
             case _:  # default
-                if "!" in content:
+                if "!" in content[0]:
                     await getattr(self.commands, content.split()[0].replace("!", "")).execute(message)
 
 

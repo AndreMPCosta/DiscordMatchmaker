@@ -50,4 +50,4 @@ class Command(ABC):
         await self.client.redis.set("playing_list_ids", dumps(self.client.playing_list_ids))
 
     async def update_redis_last_match(self):
-        await self.client.redis.set("last_match_id", str(self.client.last_match.id))
+        await self.client.redis.set("last_match_id", str(self.client.last_match.id) if self.client.last_match else "")
