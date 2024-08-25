@@ -68,18 +68,18 @@ class MatchMaker(Client):
         self.playing_list = (
             [(player, tag) for player, tag in loads(from_redis_playing_list)] if from_redis_playing_list else []
         )
-        self.playing_list = [
-            ("PretinhoDaGuiné", "EUW"),
-            ("Elesh95", "EUW"),
-            ("Toy", "2228"),
-            ("popping off", "EUW"),
-            ("Mazzeee", "EUW"),
-            ("locked in", "EUW"),
-            ("zau", "EUW"),
-            ("salganhadaa", "SIMOR"),
-            ("Filipados", "EUW"),
-            ("Cardoso00", "EUW"),
-        ]
+        # self.playing_list = [
+        #     ("PretinhoDaGuiné", "EUW"),
+        #     ("Elesh95", "EUW"),
+        #     ("Toy", "2228"),
+        #     ("popping off", "EUW"),
+        #     ("Mazzeee", "EUW"),
+        #     ("locked in", "EUW"),
+        #     ("zau", "EUW"),
+        #     ("salganhadaa", "SIMOR"),
+        #     ("Filipados", "EUW"),
+        #     ("Cardoso00", "EUW"),
+        # ]
         self.playing_list_ids = loads(from_redis_playing_list_ids) if from_redis_playing_list_ids else {}
         self.last_match_id = PydanticObjectId(from_redis_last_match_id) if from_redis_last_match_id else None
 

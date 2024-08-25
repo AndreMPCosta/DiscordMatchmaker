@@ -43,9 +43,9 @@ class Command(ABC):
 
     async def show_log(self, message: Message, *args):
         if args:
-            logger.debug(f"!{self.name} {' '.join(args)} | Called by: {message.author.name}")
+            logger.info(f"!{self.name} {' '.join(args)} | Called by: {message.author.name}")
         else:
-            logger.debug(f"!{self.name} | Called by: {message.author.name}")
+            logger.info(f"!{self.name} | Called by: {message.author.name}")
 
     async def show_help(self, message: Message):
         description = self.description
