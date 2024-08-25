@@ -13,7 +13,7 @@ from bot.commands import ClientSingleton
 from bot.commands.account import Register
 from bot.commands.generic import Help
 from bot.commands.match import Close, Play, Playlist, Remove, Reset, Upload
-from bot.commands.post_match import MVPList, Vote
+from bot.commands.post_match import ForceVote, MVPList, ShowMissing, Vote
 from clients.redis import retrieve_async_redis_client
 
 
@@ -27,6 +27,8 @@ class Commands:
     close: Close = Close()
     upload: Upload = Upload()
     vote: Vote = Vote()
+    force_vote: ForceVote = ForceVote()
+    show_missing: ShowMissing = ShowMissing()
     mvp: MVPList = MVPList()
     help: Help = Help()
 
