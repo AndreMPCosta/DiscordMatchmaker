@@ -77,16 +77,16 @@ class Vote(Command):
             self.finalize()
 
     async def check_vote(self, message: Message, player: int, voter: int) -> bool:
-        if not len(self.client.eligible_mvps) + 1 > player > 0:
+        if not self.client.last_match:
+            await message.channel.send("The game did not start yet.")
+            return False
+        elif not len(self.client.eligible_mvps) + 1 > player > 0:
             await message.channel.send(f"Invalid player number: {player}")
             return False
         elif len(self.client.mvp_votes) == 10:
             await message.channel.send(
                 f"You can't vote anymore, the winner of this round is {self.client.last_match.mvp}"
             )
-            return False
-        elif not self.client.last_match:
-            await message.channel.send("The game did not start yet.")
             return False
         elif voter in self.client.mvp_votes:
             await message.channel.send("You already voted.")

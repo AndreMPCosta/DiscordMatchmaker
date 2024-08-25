@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from discord import Message
 
-logger = getLogger("commands")
+logger = getLogger("discord.client")
 
 if TYPE_CHECKING:
     from bot.client import MatchMaker
@@ -43,7 +43,7 @@ class Command(ABC):
 
     async def show_log(self, message: Message, *args):
         if args:
-            logger.info(f"!{self.name} {' '.join(args)} | Called by: {message.author.name}")
+            logger.info(f"!{self.name} {' '.join(*args)} | Called by: {message.author.name}")
         else:
             logger.info(f"!{self.name} | Called by: {message.author.name}")
 
