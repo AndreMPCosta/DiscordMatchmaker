@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from logging import getLogger
-from os import environ, getenv, listdir
+from os import environ, getenv
 
 from beanie import init_beanie
 from fastapi import FastAPI
@@ -11,6 +11,10 @@ from fastapi.responses import ORJSONResponse
 from uvicorn import run as uvicorn_run
 
 from api.db import get_db
+from api.managers.stream import ChangeStreamManager
+from api.models.league import StandingsDocument
+from api.models.match import MatchDocument
+from api.models.user import User
 from api.routers import api_router
 from api.utils import get_project_root
 
@@ -19,11 +23,14 @@ logger = getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    db = get_db()
     await init_beanie(
-        database=get_db(),
-        document_models=[],
+        database=db,
+        document_models=[User, MatchDocument, StandingsDocument],
         allow_index_dropping=False,
     )
+    change_stream_manager = ChangeStreamManager(db)
+    await change_stream_manager.start()
     yield
 
 
@@ -100,7 +107,6 @@ async def general_exception_handler(request: Request, exc: Exception):
 app.include_router(api_router)
 
 if __name__ == "__main__":
-    print(f"Files and folders inside the project root: {listdir(get_project_root())}")
     uvicorn_run(
         "api.app:app",
         host="0.0.0.0",
