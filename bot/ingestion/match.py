@@ -6,6 +6,7 @@ import cv2
 from cv2 import Mat
 import numpy as np
 
+from api.consts import Champion
 from bot import get_project_root
 
 generic_adjustments = {
@@ -48,7 +49,7 @@ class ImageRecognition:
 
     # Function to match template and return champion name
     @staticmethod
-    def match_champion(image: Mat | np.ndarray[Any, np.dtype], template_dict):
+    def match_champion(image: Mat | np.ndarray[Any, np.dtype], template_dict) -> Champion | None:
         best_match = None
         highest_val = 0
         # Resize the image if needed
@@ -64,11 +65,13 @@ class ImageRecognition:
 
             if max_val > highest_val:
                 highest_val = max_val
-                best_match = champ
+                best_match: Champion | None = champ
 
         return best_match
 
-    def get_raw_champions(self, rois: list[tuple[int, int, int, int]], images: dict[str, np.ndarray]) -> list[str]:
+    def get_raw_champions(
+        self, rois: list[tuple[int, int, int, int]], images: dict[str, np.ndarray]
+    ) -> list[Champion | None]:
         # Iterate over each ROI to identify champions
         identified_champions = []
 
@@ -86,7 +89,7 @@ class ImageRecognition:
                     h = h + generic_adjustments.get(index)[current_adjustment][2]
                     y = y + generic_adjustments.get(index)[current_adjustment][3]
                     roi_image = self.screenshot[y : y + h, x : x + w]
-                    champion = self.match_champion(roi_image, self.champion_images)
+                    champion: Champion | None = self.match_champion(roi_image, self.champion_images)
                     if champion:
                         break
             identified_champions.append(champion)
@@ -169,7 +172,7 @@ class ImageRecognition:
         final_rois.reverse()
         return final_rois
 
-    def get_champions(self) -> list[str]:
+    def get_champions(self) -> list[Champion | None]:
         _rois = self.calculate_rois()
         return self.get_raw_champions(_rois, self.champion_images)
 

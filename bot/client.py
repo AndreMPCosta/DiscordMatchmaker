@@ -118,7 +118,7 @@ class MatchMaker(Client):
                 await getattr(self.commands, "force_vote").execute(message, player)
                 await self.commands.force_vote.show_log(message, player)
             case _:  # default
-                if "!" in content[0]:
+                if content.startswith("!"):
                     await getattr(self.commands, content.split()[0].replace("!", "")).execute(message)
                     await getattr(self.commands, content.split()[0].replace("!", "")).show_log(message)
 

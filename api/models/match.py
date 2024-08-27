@@ -154,4 +154,32 @@ class MatchDocument(Match, Document):
                 [("date", DESCENDING)],
                 name="date_index",
             ),
+            IndexModel(
+                [("blue_team.players.name", DESCENDING)],
+                name="blue_team_players_name_index",
+            ),
+            IndexModel(
+                [("red_team.players.name", DESCENDING)],
+                name="red_team_players_name_index",
+            ),
+            IndexModel(
+                [("blue_team.players.discord_id", DESCENDING)],
+                name="blue_team_players_discord_id_index",
+            ),
+            IndexModel(
+                [("red_team.players.discord_id", DESCENDING)],
+                name="red_team_players_discord_id_index",
+            ),
+            IndexModel(
+                [("blue_team.players.picked_champion", DESCENDING)],
+                name="blue_team_players_picked_champion_index",
+            ),
+            IndexModel(
+                [("red_team.players.picked_champion", DESCENDING)],
+                name="red_team_players_picked_champion_index",
+            ),
+            IndexModel(
+                [("mvp.discord_id", DESCENDING)],
+                name="mvp_discord_id_index",
+            ),
         ]

@@ -12,3 +12,8 @@ class SummonerNotFound(BotException):
             f"Summoner '{summoner}' with tag '{tag}' not found. "
             f"Please make sure the summoner name and tag are correct."
         )
+
+
+class ChampionMismatch(BotException):
+    def __init__(self, champion: str | None):
+        self.detail = f"Champion '{champion}' not found. Please make sure the champion name is correct."
