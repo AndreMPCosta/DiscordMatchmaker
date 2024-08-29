@@ -105,15 +105,17 @@ class Close(Command):
             blue_team_channel = utils.get(self.client.guilds[0].channels, name="Team 1")
             red_team_channel = utils.get(self.client.guilds[0].channels, name="Team 2")
             for player in blue_team.get("players"):
+                print(player)
                 await (
                     self.client.guilds[0]
-                    .get_member(int(self.client.playing_list_ids.get(player)))
+                    .get_member(int(self.client.playing_list_ids.get(player[0])))
                     .move_to(blue_team_channel)
                 )
             for player in red_team.get("players"):
+                print(player)
                 await (
                     self.client.guilds[0]
-                    .get_member(int(self.client.playing_list_ids.get(player)))
+                    .get_member(int(self.client.playing_list_ids.get(player[0])))
                     .move_to(red_team_channel)
                 )
 
