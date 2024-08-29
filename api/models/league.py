@@ -1,10 +1,10 @@
 from collections import Counter
 from datetime import datetime
 from math import log1p
-from typing import Self
 
 from beanie import Document
 from pydantic import BaseModel, computed_field
+from typing_extensions import Self
 
 from api.consts import Champion
 from api.models.match import MatchDocument, PlayerBase

@@ -7,6 +7,7 @@ from beanie import PydanticObjectId, init_beanie
 from discord import Client, Intents, Message
 
 from api.db import get_db
+from api.models.league import StandingsDocument
 from api.models.match import MatchDocument, Player
 from api.models.user import User
 from bot.commands import ClientSingleton
@@ -60,7 +61,14 @@ class MatchMaker(Client):
     async def on_ready(self):
         print(f"Logged on as {self.user}!")
         ClientSingleton.set_client(self)  # Set the client globally
-        await init_beanie(database=get_db(), document_models=[User])
+        await init_beanie(
+            database=get_db(),
+            document_models=[
+                User,
+                MatchDocument,
+                StandingsDocument,
+            ],
+        )
         from_redis_playing_list = await self.redis.get("playing_list")
         from_redis_playing_list_ids = await self.redis.get("playing_list_ids")
         redis_match_id = await self.redis.get("last_match_id")
@@ -119,8 +127,10 @@ class MatchMaker(Client):
                 await self.commands.force_vote.show_log(message, player)
             case _:  # default
                 if content.startswith("!"):
-                    await getattr(self.commands, content.split()[0].replace("!", "")).execute(message)
-                    await getattr(self.commands, content.split()[0].replace("!", "")).show_log(message)
+                    command = content.split()[0].replace("!", "")
+                    if getattr(self.commands, command, None):
+                        await getattr(self.commands, command).execute(message)
+                        await getattr(self.commands, command).show_log(message)
 
 
 _intents = Intents.default()
