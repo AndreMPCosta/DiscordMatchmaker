@@ -3,13 +3,14 @@ from dataclasses import dataclass, field
 
 from aiohttp import ClientSession
 import cv2
-from discord import Message, utils
+from discord import File, Message, utils
 import numpy as np
 from PIL import Image
 
 from api.consts import Champion
 from api.models.match import MatchDocument
 from api.models.user import User
+from bot import get_project_root
 from bot.commands import Command
 from bot.commands.post_match import show_mvp
 from bot.exceptions import GeminiError
@@ -177,3 +178,10 @@ class Upload(Command):
                 await message.channel.send("Failed to create match.")
         except (Exception,) as e:
             await message.channel.send(f"An error occurred after processing: {e}")
+
+    async def show_help(self, message: Message):
+        description = self.description
+        usage = self.usage
+        example = f"\n{self.example}" if self.example != self.usage else None
+        _message = f"{description}\n" f"Usage: {usage}{f'Example: {example}' if example else ''}"
+        await message.channel.send(_message, file=File(f"{get_project_root()}/tests/data/test13.png"))
