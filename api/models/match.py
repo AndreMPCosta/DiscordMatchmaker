@@ -10,6 +10,8 @@ from pymongo import DESCENDING, IndexModel
 
 
 def convert_to_date(date: str) -> datetime:
+    if isinstance(date, datetime):
+        return date
     return parse(date)
 
 

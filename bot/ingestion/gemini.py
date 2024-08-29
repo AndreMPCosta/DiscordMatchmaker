@@ -7,11 +7,16 @@ from typing import TYPE_CHECKING
 from aiofiles import open as async_open
 from discord import Message
 from dotenv import load_dotenv
+from google.api_core.exceptions import InternalServerError
 import google.generativeai as genai
 from PIL import Image
 
+from api.consts import Champion
 from api.models.match import MatchDocument
+from bot import get_project_root
 from bot.consts import matches_folder
+from bot.exceptions import GeminiError
+from bot.ingestion.match import ImageRecognition
 
 load_dotenv()
 genai.configure(api_key=environ.get("GOOGLE_API_KEY"))
@@ -31,7 +36,7 @@ async def save_image(path: str, image: memoryview) -> None:
 async def create_match(
     client: "MatchMaker",
     image: Image,
-    champions: list[str],
+    champions: list[Champion | None],
     send_match_details: bool = False,
     message: Message | None = None,
 ) -> MatchDocument:
@@ -77,20 +82,46 @@ async def create_match(
     {[summoner for summoner, tag in client.playing_list]}\n
     """
     logger.info("Trying to fetch match info")
-    response = model.generate_content([prompt, image])
+    try:
+        response = model.generate_content([prompt, image])
+    except InternalServerError:
+        new_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+        try:
+            print("Trying to fetch match info with flash model")
+            response = new_model.generate_content([prompt, image])
+        except InternalServerError:
+            raise GeminiError()
     logger.info("Match info fetched")
     filtered_response = response.text.replace("```json", "").replace("```", "")
     json_response = loads(filtered_response)
+    # Convert all keys in the dictionary to lowercase for case-insensitive lookup
+    lowercase_playing_list_ids = {k.lower(): v for k, v in client.playing_list_ids.items()}
     for team in ["blue", "red"]:
         for player in json_response[f"{team}_team"]["players"]:
-            player["discord_id"] = client.playing_list_ids.get(player["name"])
+            player["discord_id"] = lowercase_playing_list_ids.get(player["name"].lower())
             player["picked_champion"] = champions.pop(0)
     match = MatchDocument(**json_response)
     if send_match_details:
         await match.send_match_details(message)
+    match.blue_team.bans = []
+    match.red_team.bans = []
     await match.save()
     buffer = BytesIO()
     image.save(buffer, format="PNG")
     await save_image(f"{matches_folder}/{str(match.id)}.png", buffer.getbuffer())
     client.last_match = match
     return match
+
+
+if __name__ == "__main__":
+    from asyncio import run
+
+    from cv2 import imread
+
+    from bot.mock.client import MockClient
+
+    image_recognition = ImageRecognition()
+    image_recognition.set_screenshot(imread(f"{get_project_root()}/tests/data/test13.png"))
+    _champions = image_recognition.get_champions()
+    _client = MockClient()
+    run(create_match(_client, Image.open(f"{get_project_root()}/tests/data/test13.png"), _champions))

@@ -7,10 +7,12 @@ from discord import Message, utils
 import numpy as np
 from PIL import Image
 
+from api.consts import Champion
 from api.models.match import MatchDocument
 from api.models.user import User
 from bot.commands import Command
 from bot.commands.post_match import show_mvp
+from bot.exceptions import GeminiError
 from bot.helpers import balance, beautify_teams
 from bot.ingestion.gemini import create_match
 from bot.ingestion.match import ImageRecognition
@@ -147,17 +149,20 @@ class Upload(Command):
                 await message.channel.send("Processing image, this may take a few seconds...")
                 self.image_recognition.set_screenshot(image)
                 champions = self.image_recognition.get_champions()
-                # Run create_match in a background task
-                task: Task = create_task(self.run_create_match(image, champions, message))
-                # Notify when the task is completed
-                task.add_done_callback(lambda t: create_task(self.on_task_complete(t, message)))
+                if champions is not None:
+                    # Run create_match in a background task
+                    task: Task = create_task(self.run_create_match(image, champions, message))
+                    # Notify when the task is completed
+                    task.add_done_callback(lambda t: create_task(self.on_task_complete(t, message)))
 
-    async def run_create_match(self, image: np.ndarray, champions: list[str], message: Message) -> MatchDocument:
+    async def run_create_match(
+        self, image: np.ndarray, champions: list[Champion | None], message: Message
+    ) -> MatchDocument:
         try:
             # Run the create_match function asynchronously
             result: MatchDocument = await create_match(self.client, Image.fromarray(image), champions, True, message)
             return result
-        except Exception as e:
+        except (Exception, GeminiError) as e:
             # Handle exceptions and notify user
             await message.channel.send(f"An error occurred while creating the match: {e}")
 

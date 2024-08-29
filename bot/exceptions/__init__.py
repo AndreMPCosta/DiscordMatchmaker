@@ -17,3 +17,8 @@ class SummonerNotFound(BotException):
 class ChampionMismatch(BotException):
     def __init__(self, champion: str | None):
         self.detail = f"Champion '{champion}' not found. Please make sure the champion name is correct."
+
+
+class GeminiError(BotException):
+    def __init__(self):
+        self.detail = "An error occurred while processing the image"

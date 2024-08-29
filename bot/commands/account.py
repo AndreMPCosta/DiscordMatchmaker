@@ -27,6 +27,7 @@ class Register(Command):
         # find the # char
         if "#" in summoner:
             summoner, tag = summoner.split("#")
+            summoner = summoner.rstrip()
         else:
             tag = "EUW"
         try:
