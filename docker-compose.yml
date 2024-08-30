@@ -1,22 +1,93 @@
 version: '3.9'
 
 services:
-  mongo:
+  mongo1:
     env_file:
       - stack.env
-    container_name: mongo
+    container_name: mongo1
     image: mongo:latest
-    restart: always
-    ports:
-      - '27017:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: $MONGO_USER
       MONGO_INITDB_ROOT_PASSWORD: $MONGO_PASSWORD
+    command: ["mongod", "--replSet", "rs0", "--keyFile", "/data/keyfile/mongo-keyfile", "--bind_ip", "0.0.0.0"]
     volumes:
-      - 'mongo_data:/data/db'
-      - 'mongo_config:/data/configdb'
+      - 'mongo1_data:/data/db'
+      - 'mongo1_config:/data/configdb'
+      - 'general_data:/data/keyfile:ro'
     networks:
       - default
+
+  mongo2:
+    env_file:
+      - stack.env
+    container_name: mongo2
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_USER
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_PASSWORD
+    command: ["mongod", "--replSet", "rs0", "--keyFile", "/data/keyfile/mongo-keyfile", "--bind_ip", "0.0.0.0"]
+    volumes:
+      - 'mongo2_data:/data/db'
+      - 'mongo2_config:/data/configdb'
+      - 'general_data:/data/keyfile:ro'
+    networks:
+      - default
+
+  mongo3:
+    env_file:
+      - stack.env
+    container_name: mongo3
+    image: mongo:latest
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_USER
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_PASSWORD
+    command: ["mongod", "--replSet", "rs0", "--keyFile", "/data/keyfile/mongo-keyfile", "--bind_ip", "0.0.0.0"]
+    volumes:
+      - 'mongo3_data:/data/db'
+      - 'mongo3_config:/data/configdb'
+      - 'general_data:/data/keyfile:ro'
+    networks:
+      - default
+
+  mongo_setup:
+    image: mongo:latest
+    container_name: mongo_setup
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    entrypoint: >
+      bash -c 'sleep 10 &&
+      if ! mongosh --host mongo1 -u $MONGO_USER -p $MONGO_PASSWORD --authenticationDatabase admin --eval "rs.status()" | grep -q "set"; then
+        echo "Replica set not initialized. Initializing..." &&
+        mongosh --host mongo1 -u $MONGO_USER -p $MONGO_PASSWORD --authenticationDatabase admin --eval "rs.initiate({_id: \"rs0\", members: [{ _id: 0, host: \"mongo1:27017\" }, { _id: 1, host: \"mongo2:27017\" }, { _id: 2, host: \"mongo3:27017\" }]})"
+      else
+        echo "Replica set already initialized."
+      fi'
+    env_file:
+      - stack.env
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "mongosh", "--host", "mongo1", "-u", "$MONGO_USER", "-p", "$MONGO_PASSWORD", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+
+  haproxy:
+    image: haproxy:latest
+    container_name: haproxy
+    restart: always
+    ports:
+      - '27017:27017'  # Expose the same port MongoDB uses
+    volumes:
+      - 'general_data:/usr/local/etc/haproxy/haproxy.cfg'  # Configuration file for HAProxy
+    networks:
+      - default
+
   redis:
     env_file:
       - stack.env
@@ -28,6 +99,11 @@ services:
       - '8001:8001'
     environment:
       REDIS_ARGS: --requirepass $REDIS_PASSWORD
+    volumes:
+      - 'redis_data:/data'
+    networks:
+      - default
+
   discord: &common
     image: andrempcosta/bot-repo:latest
     container_name: discord-worker
@@ -38,23 +114,38 @@ services:
       - "bot_data:/home/DiscordMatchmaker/data:rw"
     networks:
       - default
+
   webapp:
     <<: *common
-    env_file:
-      - stack.env
     container_name: webapp
+    depends_on:
+      - mongo_setup
     command: pipenv run webapp
     ports:
       - "16000:16000"
     networks:
       - default
+
 volumes:
-  mongo_data:
+  general_data:
     driver: local
-  mongo_config:
+  mongo1_data:
+    driver: local
+  mongo1_config:
+    driver: local
+  mongo2_data:
+    driver: local
+  mongo2_config:
+    driver: local
+  mongo3_data:
+    driver: local
+  mongo3_config:
     driver: local
   bot_data:
     driver: local
+  redis_data:
+    driver: local
+
 networks:
   default:
     name: default-network
