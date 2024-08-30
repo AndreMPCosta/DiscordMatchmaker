@@ -17,6 +17,7 @@ correct_guesses = [
     ["Yasuo", "Zac", "Zeri", "Nami", "Gwen", "Smolder", "KSante", "Veigar", "Nautilus", "Graves"],
     ["Kayle", "Udyr", "Kaisa", "Sylas", "Thresh", "Ekko", "Rumble", "Ashe", "Kayn", "Morgana"],
     ["Kayle", "JarvanIV", "MissFortune", "Blitzcrank", "Yone", "Ekko", "Yorick", "Ashe", "Brand", "Senna"],
+    ["DrMundo", "Smolder", "Lillia", "Thresh", "Viktor", "Nilah", "LeeSin", "KSante", "Lulu", "Renata"],
 ]
 
 debug = False
@@ -124,3 +125,11 @@ def test_guess_champions_13():
     champions = img_recognition.get_champions()
     print(champions)
     assert champions == correct_guesses[12]
+
+
+def test_guess_champions_14():
+    img_recognition = ImageRecognition(debug=debug)
+    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test14.png"))
+    champions = img_recognition.get_champions()
+    print(champions)
+    assert champions == correct_guesses[13]

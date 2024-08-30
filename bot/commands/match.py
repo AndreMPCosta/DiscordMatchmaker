@@ -184,4 +184,4 @@ class Upload(Command):
         usage = self.usage
         example = f"\n{self.example}" if self.example != self.usage else None
         _message = f"{description}\n" f"Usage: {usage}{f'Example: {example}' if example else ''}"
-        await message.channel.send(_message, file=File(f"{get_project_root()}/tests/data/test13.png"))
+        await message.channel.send(_message, file=File(f"{get_project_root()}/bot/commands/assets/sample.png"))
