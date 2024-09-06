@@ -83,12 +83,12 @@ async def create_match(
     """
     logger.info("Trying to fetch match info")
     try:
-        response = model.generate_content([prompt, image])
+        response = await model.generate_content_async([prompt, image])
     except InternalServerError:
         new_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
         try:
             print("Trying to fetch match info with flash model")
-            response = new_model.generate_content([prompt, image])
+            response = await new_model.generate_content_async([prompt, image])
         except InternalServerError:
             raise GeminiError()
     logger.info("Match info fetched")

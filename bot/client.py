@@ -55,7 +55,7 @@ class MatchMaker(Client):
         #     ("CrazedAfro", "EUW"),
         #     ("2n2u", "EUW"),
         # ]
-        self.playing_list_ids = {}
+        self.playing_list_ids: dict[str, int] = {}
         self.commands = Commands()
 
     async def on_ready(self):
