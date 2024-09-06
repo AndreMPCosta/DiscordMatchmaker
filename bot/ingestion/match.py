@@ -153,16 +153,19 @@ class ImageRecognition:
             x, y, w, h = cv2.boundingRect(contour)
             aspect_ratio = w / float(h)
 
-            if 0.8 < aspect_ratio < 1.1 and 30 < w < 200 and 30 < h < 200:
+            if 0.9 < aspect_ratio < 1.1 and 30 < w < 200 and 30 < h < 200:
                 filtered_contours.append(contour)
         converted_contours = [cv2.boundingRect(contour) for contour in filtered_contours]
         max_width, max_height = (
             max(converted_contours, key=lambda element: element[2])[2],
             max(converted_contours, key=lambda element: element[3])[3],
         )
+        # print(converted_contours)
+        # print(max_width, max_height)
+
         for contour in converted_contours:
             x, y, w, h = contour
-            if w < max_width or h < max_height:
+            if w + 5 < max_width or h + 5 < max_height:
                 continue
             cv2.rectangle(crop, (x, y), (x + w, y + h), (0, 255, 0), 2)
             final_rois.append((x, y, w, h))
@@ -184,7 +187,7 @@ class ImageRecognition:
 
 if __name__ == "__main__":
     img_recognition = ImageRecognition(debug=True)
-    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test14.png"))
+    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test15.png"))
     champions = img_recognition.get_champions()
     print(champions)
     # print(img_recognition.calculate_rois("right", 0.7, ["#5c5b57"]))

@@ -1,9 +1,10 @@
 from collections import Counter
 from dataclasses import dataclass
+from os import environ
 from random import randint
 from typing import TYPE_CHECKING
 
-from discord import Message
+from discord import Message, utils
 
 from api.models.match import MVP, Player
 from bot.commands import Command
@@ -37,7 +38,10 @@ class Vote(Command):
         if is_valid:
             await self.vote(message, player, voter)
 
-    def finalize(self):
+    async def finalize(self):
+        lobby_channel = utils.get(self.client.guilds[0].channels, name=environ.get("LOBBY_CHANNEL", "Lobby"))
+        for discord_id in self.client.playing_list_ids.values():
+            await self.client.guilds[0].get_member(int(discord_id)).move_to(lobby_channel)
         self.client.last_match = None
         self.client.last_match_id = None
         self.client.mvp_votes = dict()
@@ -74,7 +78,7 @@ class Vote(Command):
             await message.channel.send(
                 f"All votes are in! The winner is: {self.client.eligible_mvps[player - 1].name} ({votes}) 🏆!"
             )
-            self.finalize()
+            await self.finalize()
 
     async def check_vote(self, message: Message, player: int, voter: int) -> bool:
         if not self.client.last_match:

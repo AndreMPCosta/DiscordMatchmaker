@@ -1,5 +1,6 @@
 from asyncio import Task, create_task
 from dataclasses import dataclass, field
+from os import environ
 
 from aiohttp import ClientSession
 import cv2
@@ -105,17 +106,17 @@ class Close(Command):
             await message.channel.send("Starting the draw! Give me some seconds.")
             blue_team, red_team, ranks = await balance(self.client.playing_list)
             await message.channel.send(beautify_teams(blue_team, red_team, ranks, self.client.guilds[0].emojis))
-            blue_team_channel = utils.get(self.client.guilds[0].channels, name="Team 1")
-            red_team_channel = utils.get(self.client.guilds[0].channels, name="Team 2")
+            blue_team_channel = utils.get(
+                self.client.guilds[0].channels, name=environ.get("BLUE_TEAM_CHANNEL", "Team 1")
+            )
+            red_team_channel = utils.get(self.client.guilds[0].channels, name=environ.get("RED_TEAM_CHANNEL", "Team 2"))
             for player in blue_team.get("players"):
-                print(player)
                 await (
                     self.client.guilds[0]
                     .get_member(int(self.client.playing_list_ids.get(player[0])))
                     .move_to(blue_team_channel)
                 )
             for player in red_team.get("players"):
-                print(player)
                 await (
                     self.client.guilds[0]
                     .get_member(int(self.client.playing_list_ids.get(player[0])))
