@@ -49,5 +49,5 @@ class MockClient(MatchMaker):
 
     async def populate_playing_list_ids(self):
         for player in self.playing_list:
-            user = await User.find_one({"summoner": player[0]})
+            user = await User.find_one({"summoner": {"$regex": rf"^{player[0]}$", "$options": "i"}})
             self.playing_list_ids[player[0]] = user.discord_id
