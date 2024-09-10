@@ -1,5 +1,6 @@
 from asyncio import Task, create_task
 from dataclasses import dataclass, field
+from logging import getLogger
 from os import environ
 
 from aiohttp import ClientSession
@@ -18,6 +19,8 @@ from bot.exceptions import GeminiError
 from bot.helpers import balance, beautify_teams
 from bot.ingestion.gemini import create_match
 from bot.ingestion.match import ImageRecognition
+
+logger = getLogger("discord.client")
 
 
 @dataclass
@@ -111,17 +114,23 @@ class Close(Command):
             )
             red_team_channel = utils.get(self.client.guilds[0].channels, name=environ.get("RED_TEAM_CHANNEL", "Team 2"))
             for player in blue_team.get("players"):
-                await (
-                    self.client.guilds[0]
-                    .get_member(int(self.client.playing_list_ids.get(player[0])))
-                    .move_to(blue_team_channel)
-                )
+                try:
+                    await (
+                        self.client.guilds[0]
+                        .get_member(int(self.client.playing_list_ids.get(player[0])))
+                        .move_to(blue_team_channel)
+                    )
+                except TypeError:
+                    logger.error(f"Player {player} could not be moved to the blue team channel")
             for player in red_team.get("players"):
-                await (
-                    self.client.guilds[0]
-                    .get_member(int(self.client.playing_list_ids.get(player[0])))
-                    .move_to(red_team_channel)
-                )
+                try:
+                    await (
+                        self.client.guilds[0]
+                        .get_member(int(self.client.playing_list_ids.get(player[0])))
+                        .move_to(red_team_channel)
+                    )
+                except TypeError:
+                    logger.error(f"Player {player} could not be moved to the red team channel")
 
 
 @dataclass
