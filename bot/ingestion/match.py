@@ -36,9 +36,6 @@ class ImageRecognition:
                 f"{get_project_root()}/bot/ingestion/champions2/{_image}"
             )
 
-        # Load ban icons (similar to how champion images were loaded)
-        for _image in listdir(f"{get_project_root()}/bot/ingestion/champions"):
-            self.ban_images[_image.split(".")[0]] = cv2.imread(f"{get_project_root()}/bot/ingestion/champions/{_image}")
         self.adjustments = {
             1: (-2, 2, 2, 0),  # (-1, 1, 0, -2)
             9: (-1, 2, 2, -1),  # (-1, 2, 2, -1)
@@ -81,17 +78,20 @@ class ImageRecognition:
             champion = self.match_champion(roi_image, images)
             if champion == "MonkeyKing":
                 champion = "Wukong"
+            increment = 1
             while champion is None:
-                all_adjustments = range(len(generic_adjustments.get(index)))
-                for current_adjustment in all_adjustments:
-                    x = x + generic_adjustments.get(index)[current_adjustment][0]
-                    w = w + generic_adjustments.get(index)[current_adjustment][1]
-                    h = h + generic_adjustments.get(index)[current_adjustment][2]
-                    y = y + generic_adjustments.get(index)[current_adjustment][3]
-                    roi_image = self.screenshot[y : y + h, x : x + w]
-                    champion: Champion | None = self.match_champion(roi_image, self.champion_images)
-                    if champion:
-                        break
+                roi_image = self.screenshot[y : y + h + increment, x : x + w + increment]
+                if self.debug:
+                    height, width = self.screenshot.shape[:2]
+                    crop = self.screenshot[0:height, 0 : int(width * 0.2)]
+                    cv2.rectangle(crop, (x, y), (x + w + increment, y + h + increment), (255, 255, 0), 2)
+                    cv2.imshow("Detected ROIs", crop)
+                    cv2.waitKey(0)
+                    cv2.destroyAllWindows()
+                champion: Champion | None = self.match_champion(roi_image, self.champion_images)
+                if champion:
+                    break
+                increment += 1
             identified_champions.append(champion)
         return identified_champions
 
@@ -187,7 +187,7 @@ class ImageRecognition:
 
 if __name__ == "__main__":
     img_recognition = ImageRecognition(debug=True)
-    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test15.png"))
+    img_recognition.set_screenshot(cv2.imread(f"{get_project_root()}/tests/data/test16.png"))
     champions = img_recognition.get_champions()
     print(champions)
     # print(img_recognition.calculate_rois("right", 0.7, ["#5c5b57"]))
