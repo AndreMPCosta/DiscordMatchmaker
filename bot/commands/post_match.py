@@ -95,7 +95,9 @@ class Vote(Command):
         elif voter in self.client.mvp_votes:
             await message.channel.send("You already voted.")
             return False
-        elif voter not in self.client.last_match.blue_team.players + self.client.last_match.red_team.players:
+        elif voter not in [player.discord_id for player in self.client.last_match.blue_team.players] + [
+            player.discord_id for player in self.client.last_match.red_team.players
+        ]:
             await message.channel.send("You are not in this game.")
             return False
         return True
