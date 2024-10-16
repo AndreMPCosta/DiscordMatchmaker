@@ -1,4 +1,5 @@
 from asyncio import create_task
+from calendar import monthrange
 from datetime import datetime, timezone
 
 from api.models.league import StandingsDocument
@@ -21,13 +22,20 @@ class ChangeStreamManager:
 
                     # Create a new datetime object for the first day of the current month at midnight
                     first_day_of_month = datetime(year=now.year, month=now.month, day=1, tzinfo=timezone.utc)
+
+                    # Get the last day of the current month
+                    last_day = monthrange(now.year, now.month)[1]
+
+                    # Create a new datetime object for the last day of the current month at midnight
+                    last_day_of_month = datetime(year=now.year, month=now.month, day=last_day, tzinfo=timezone.utc)
+
                     standings = await StandingsDocument.get_standings_by_date(start_date=first_day_of_month)
                     match = MatchDocument(**change["fullDocument"])
                     if not standings:
                         standings = StandingsDocument(
                             players=[],
                             start_date=first_day_of_month,
-                            end_date=None,
+                            end_date=last_day_of_month,
                             matches=[],
                         )
                     await standings.refresh(match)
