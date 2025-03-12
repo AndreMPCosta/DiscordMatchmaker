@@ -17,8 +17,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install libgl1-mesa-glx and libglib2.0-0
-        run: sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
+      - name: Install libgl1-mesa and libglib2.0-0
+        run: sudo apt-get install -y libgl1 libglx-mesa0 libglib2.0-0
 
       # Setup Python
       - name: Setup Python
