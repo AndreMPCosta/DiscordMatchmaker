@@ -48,10 +48,14 @@ async def balance(
     for summoner, tag in summoners:
         tasks.append(get_rank_v3(summoner, tag))
     results = await gather(*tasks)
+    print(results)
     summoners = [summoner[0] for summoner in summoners]
     mapped_results = {result[0]: result[1] for result in results}
     shuffled_summoners = sample(summoners, 10)
-    ranked_summoners = {summoner: points.get(mapped_results.get(summoner)) for summoner in shuffled_summoners}
+    normalized_points = {k.lower(): v for k, v in points.items()}  # Ensure all keys are lowercase
+    ranked_summoners = {
+        summoner: normalized_points.get(mapped_results.get(summoner).lower()) for summoner in shuffled_summoners
+    }
     for summoner, evaluation in ranked_summoners.items():
         mid_point += evaluation
     mid_point /= 2

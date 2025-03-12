@@ -116,11 +116,11 @@ async def get_rank_v3(summoner: str, tag: str = "euw") -> tuple[str, str]:
             json = await resp.json()
             try:
                 tier = json.get("data").get("search").get("summoners")[0].get("queue").get("tier")
-            except AttributeError:
+            except (AttributeError, TypeError):
                 tier = None
             try:
                 division = json.get("data").get("search").get("summoners")[0].get("queue").get("division")
-            except AttributeError:
+            except (AttributeError, TypeError):
                 division = None
             if json.get("data").get("search").get("summoners") is None:
                 raise SummonerNotFound(summoner, tag)
@@ -134,5 +134,5 @@ if __name__ == "__main__":
         from asyncio import WindowsSelectorEventLoopPolicy, set_event_loop_policy
 
         set_event_loop_policy(WindowsSelectorEventLoopPolicy())
-    rank = run(get_rank_v3("2n2u", "euw"))
+    rank = run(get_rank_v3("kingwannadie", "7684"))
     print(rank)
