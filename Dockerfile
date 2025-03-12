@@ -9,7 +9,8 @@ RUN pip install pipenv
 RUN apt-get update
 RUN apt-get -y install --no-install-recommends \
     nano \
-    libgl1-mesa-glx \
+    libglx-mesa0 \
+    libgl1 \
     libglib2.0-0
 
 RUN mkdir $APP_HOME
