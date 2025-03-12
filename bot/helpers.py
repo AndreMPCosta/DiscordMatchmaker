@@ -5,7 +5,7 @@ from random import randint, sample
 from discord import utils
 
 from bot.consts import points, threshold
-from bot.scrapper import get_rank_v2
+from bot.scrapper import get_rank_v3
 
 
 async def draw(
@@ -46,7 +46,7 @@ async def balance(
     mid_point = 0
     draws = 0
     for summoner, tag in summoners:
-        tasks.append(get_rank_v2(summoner, tag))
+        tasks.append(get_rank_v3(summoner, tag))
     results = await gather(*tasks)
     summoners = [summoner[0] for summoner in summoners]
     mapped_results = {result[0]: result[1] for result in results}

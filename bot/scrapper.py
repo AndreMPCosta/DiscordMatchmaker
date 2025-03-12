@@ -75,10 +75,58 @@ async def get_rank_v2(summoner: str, tag: str = "euw") -> tuple[str, str]:
                 return summoner, "Gold 4"
 
 
+async def get_rank_v3(summoner: str, tag: str = "euw") -> tuple[str, str]:
+    async with ClientSession() as session:
+        async with session.post(
+            "https://mobalytics.gg/api/lol/graphql/v1/query",
+            data=dumps(
+                {
+                    "operationName": "LolSearchQuery",
+                    "variables": {"region": "ALL", "text": f"{summoner}#{tag}", "withChampions": False},
+                    "extensions": {
+                        "persistedQuery": {
+                            "version": 1,
+                            "sha256Hash": "c0108292df613795e3c6111fedad9abb344eba04b5c2feff1b03cad82550e9cd",
+                        }
+                    },
+                }
+            ),
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0",
+                "Accept": "*/*",
+                "Accept-Language": "en_us",
+                # 'Accept-Encoding': 'gzip, deflate, br, zstd',
+                "Referer": "https://mobalytics.gg/lol",
+                "Origin": "https://mobalytics.gg",
+                "Connection": "keep-alive",
+                # 'Cookie': 'appmobaabgroup=B; appcfcountry=PT; appiscrawler=0',
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "no-cors",
+                "Sec-Fetch-Site": "same-origin",
+                # Requests doesn't support trailers
+                # 'TE': 'trailers',
+                "content-type": "application/json",
+                "x-moba-client": "mobalytics-web",
+                "x-moba-proxy-gql-ops-name": "LolSearchQuery",
+                "Priority": "u=4",
+                "Pragma": "no-cache",
+                "Cache-Control": "no-cache",
+            },
+        ) as resp:
+            json = await resp.json()
+            tier = json.get("data").get("search").get("summoners")[0].get("queue").get("tier")
+            division = json.get("data").get("search").get("summoners")[0].get("queue").get("division")
+            if "Summoner not found" in json:
+                raise SummonerNotFound(summoner, tag)
+            if tier and division:
+                return summoner, f"{tier.capitalize()} {division}"
+            return summoner, "Gold 4"
+
+
 if __name__ == "__main__":
     if platform == "win32":
         from asyncio import WindowsSelectorEventLoopPolicy, set_event_loop_policy
 
         set_event_loop_policy(WindowsSelectorEventLoopPolicy())
-    rank = run(get_rank_v2("2n2u", "euw"))
+    rank = run(get_rank_v3("NinaKravitzzz", "euw"))
     print(rank)
